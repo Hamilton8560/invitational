@@ -2,11 +2,10 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use App\Models\Division;
 use App\Models\Event;
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProductFactory extends Factory
 {
@@ -24,7 +23,7 @@ class ProductFactory extends Factory
     {
         return [
             'event_id' => Event::factory()->create()->onDelete,
-            'type' => fake()->randomElement(["team","player","spectator","booth","banner","website_ad"]),
+            'type' => fake()->randomElement(['team', 'player', 'spectator', 'booth', 'banner', 'website_ad']),
             'name' => fake()->name(),
             'description' => fake()->text(),
             'price' => fake()->randomFloat(2, 0, 99999999.99),

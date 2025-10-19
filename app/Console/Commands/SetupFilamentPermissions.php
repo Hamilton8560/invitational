@@ -39,7 +39,7 @@ class SetupFilamentPermissions extends Command
             'individual_player',
             'booth',
             'banner',
-            'website_ad'
+            'website_ad',
         ];
 
         $permissionCount = 0;
@@ -48,8 +48,8 @@ class SetupFilamentPermissions extends Command
             $permissions = ['view', 'view_any', 'create', 'update', 'delete', 'delete_any'];
             foreach ($permissions as $permission) {
                 \Spatie\Permission\Models\Permission::firstOrCreate([
-                    'name' => $permission . '_' . $resource,
-                    'guard_name' => 'web'
+                    'name' => $permission.'_'.$resource,
+                    'guard_name' => 'web',
                 ]);
                 $permissionCount++;
             }

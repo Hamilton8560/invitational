@@ -29,7 +29,6 @@ final class ProductControllerTest extends TestCase
         $response->assertViewHas('products');
     }
 
-
     #[Test]
     public function create_displays_view(): void
     {
@@ -38,7 +37,6 @@ final class ProductControllerTest extends TestCase
         $response->assertOk();
         $response->assertViewIs('product.create');
     }
-
 
     #[Test]
     public function store_uses_form_request_validation(): void
@@ -81,7 +79,6 @@ final class ProductControllerTest extends TestCase
         $response->assertSessionHas('product.id', $product->id);
     }
 
-
     #[Test]
     public function show_displays_view(): void
     {
@@ -94,7 +91,6 @@ final class ProductControllerTest extends TestCase
         $response->assertViewHas('product');
     }
 
-
     #[Test]
     public function edit_displays_view(): void
     {
@@ -106,7 +102,6 @@ final class ProductControllerTest extends TestCase
         $response->assertViewIs('product.edit');
         $response->assertViewHas('product');
     }
-
 
     #[Test]
     public function update_uses_form_request_validation(): void
@@ -148,7 +143,6 @@ final class ProductControllerTest extends TestCase
         $this->assertEquals($current_quantity, $product->current_quantity);
     }
 
-
     #[Test]
     public function destroy_deletes_and_redirects(): void
     {
@@ -160,7 +154,6 @@ final class ProductControllerTest extends TestCase
 
         $this->assertSoftDeleted($product);
     }
-
 
     #[Test]
     public function statements_uses_form_request_validation(): void

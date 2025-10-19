@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('buyer_id')->constrained('users')->onDelete('cascade');
-            $table->enum('ad_placement', ["header","sidebar","footer","popup"]);
+            $table->enum('ad_placement', ['header', 'sidebar', 'footer', 'popup']);
             $table->string('company_name', 255);
             $table->text('ad_image_url')->nullable();
             $table->text('ad_link_url')->nullable();

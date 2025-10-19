@@ -12,11 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Drop the existing check constraint
-        DB::statement('ALTER TABLE products DROP CONSTRAINT products_type_check');
+        // Only run on PostgreSQL (SQLite doesn't support DROP CONSTRAINT)
+        if (DB::getDriverName() === 'pgsql') {
+            // Drop the existing check constraint
+            DB::statement('ALTER TABLE products DROP CONSTRAINT products_type_check');
 
-        // Add the new check constraint with 'booth' included
-        DB::statement("ALTER TABLE products ADD CONSTRAINT products_type_check CHECK (type::text = ANY (ARRAY['team_registration'::character varying, 'individual_registration'::character varying, 'spectator_ticket'::character varying, 'advertising'::character varying, 'booth'::character varying]::text[]))");
+            // Add the new check constraint with 'booth' included
+            DB::statement("ALTER TABLE products ADD CONSTRAINT products_type_check CHECK (type::text = ANY (ARRAY['team_registration'::character varying, 'individual_registration'::character varying, 'spectator_ticket'::character varying, 'advertising'::character varying, 'booth'::character varying]::text[]))");
+        }
     }
 
     /**
@@ -24,10 +27,13 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Drop the constraint with 'booth'
-        DB::statement('ALTER TABLE products DROP CONSTRAINT products_type_check');
+        // Only run on PostgreSQL (SQLite doesn't support DROP CONSTRAINT)
+        if (DB::getDriverName() === 'pgsql') {
+            // Drop the constraint with 'booth'
+            DB::statement('ALTER TABLE products DROP CONSTRAINT products_type_check');
 
-        // Restore the original constraint without 'booth'
-        DB::statement("ALTER TABLE products ADD CONSTRAINT products_type_check CHECK (type::text = ANY (ARRAY['team_registration'::character varying, 'individual_registration'::character varying, 'spectator_ticket'::character varying, 'advertising'::character varying]::text[]))");
+            // Restore the original constraint without 'booth'
+            DB::statement("ALTER TABLE products ADD CONSTRAINT products_type_check CHECK (type::text = ANY (ARRAY['team_registration'::character varying, 'individual_registration'::character varying, 'spectator_ticket'::character varying, 'advertising'::character varying]::text[]))");
+        }
     }
 };

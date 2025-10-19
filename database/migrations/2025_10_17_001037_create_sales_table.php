@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('quantity')->default(1);
             $table->decimal('unit_price', 10, 2);
             $table->decimal('total_amount', 10, 2);
-            $table->enum('status', ["pending","completed","failed","refunded"])->default('pending');
+            $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
             $table->string('paddle_transaction_id', 255)->unique()->nullable();
             $table->string('paddle_subscription_id', 255)->nullable();
             $table->string('payment_method', 50)->nullable();

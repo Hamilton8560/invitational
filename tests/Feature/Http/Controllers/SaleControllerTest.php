@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Event as EventFacade;
 use JMac\Testing\Traits\AdditionalAssertions;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -32,7 +32,6 @@ final class SaleControllerTest extends TestCase
         $response->assertOk();
         $response->assertJsonStructure([]);
     }
-
 
     #[Test]
     public function store_uses_form_request_validation(): void
@@ -84,7 +83,6 @@ final class SaleControllerTest extends TestCase
         $response->assertJsonStructure([]);
     }
 
-
     #[Test]
     public function show_behaves_as_expected(): void
     {
@@ -95,7 +93,6 @@ final class SaleControllerTest extends TestCase
         $response->assertOk();
         $response->assertJsonStructure([]);
     }
-
 
     #[Test]
     public function update_uses_form_request_validation(): void
@@ -146,7 +143,6 @@ final class SaleControllerTest extends TestCase
         $this->assertEquals($purchased_at->timestamp, $sale->purchased_at);
     }
 
-
     #[Test]
     public function destroy_deletes_and_responds_with(): void
     {
@@ -158,7 +154,6 @@ final class SaleControllerTest extends TestCase
 
         $this->assertModelMissing($sale);
     }
-
 
     #[Test]
     public function statements_uses_form_request_validation(): void
@@ -177,7 +172,7 @@ final class SaleControllerTest extends TestCase
         $quantity = fake()->numberBetween(-10000, 10000);
         $user = User::factory()->create();
 
-        Event::fake();
+        EventFacade::fake();
 
         $response = $this->get(route('sales.statements'), [
             'product_id' => $product->id,
@@ -196,7 +191,7 @@ final class SaleControllerTest extends TestCase
         $response->assertOk();
         $response->assertJson($sale, 201);
 
-        Event::assertDispatched(PurchaseCompleted::class, function ($event) use ($sale) {
+        EventFacade::assertDispatched(PurchaseCompleted::class, function ($event) use ($sale) {
             return $event->sale->is($sale);
         });
     }

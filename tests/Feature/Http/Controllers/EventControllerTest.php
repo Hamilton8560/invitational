@@ -30,7 +30,6 @@ final class EventControllerTest extends TestCase
         $response->assertViewHas('events');
     }
 
-
     #[Test]
     public function create_displays_view(): void
     {
@@ -39,7 +38,6 @@ final class EventControllerTest extends TestCase
         $response->assertOk();
         $response->assertViewIs('event.create');
     }
-
 
     #[Test]
     public function store_uses_form_request_validation(): void
@@ -85,7 +83,6 @@ final class EventControllerTest extends TestCase
         $response->assertSessionHas('event.id', $event->id);
     }
 
-
     #[Test]
     public function show_displays_view(): void
     {
@@ -98,7 +95,6 @@ final class EventControllerTest extends TestCase
         $response->assertViewHas('event');
     }
 
-
     #[Test]
     public function edit_displays_view(): void
     {
@@ -110,7 +106,6 @@ final class EventControllerTest extends TestCase
         $response->assertViewIs('event.edit');
         $response->assertViewHas('event');
     }
-
 
     #[Test]
     public function update_uses_form_request_validation(): void
@@ -155,7 +150,6 @@ final class EventControllerTest extends TestCase
         $this->assertEquals($refund_cutoff_date, $event->refund_cutoff_date);
     }
 
-
     #[Test]
     public function destroy_deletes_and_redirects(): void
     {
@@ -167,7 +161,6 @@ final class EventControllerTest extends TestCase
 
         $this->assertSoftDeleted($event);
     }
-
 
     #[Test]
     public function statements_uses_form_request_validation(): void

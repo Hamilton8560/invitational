@@ -2,12 +2,11 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use App\Models\AgeGroup;
 use App\Models\Division;
 use App\Models\EventSport;
 use App\Models\SkillLevel;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class DivisionFactory extends Factory
 {

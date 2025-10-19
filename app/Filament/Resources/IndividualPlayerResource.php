@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\IndividualPlayerResource\Pages;
-use App\Filament\Resources\IndividualPlayerResource\RelationManagers;
 use App\Models\IndividualPlayer;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class IndividualPlayerResource extends Resource
 {

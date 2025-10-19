@@ -17,6 +17,14 @@ Volt::route('/events/{event:slug}/tickets/{product}', 'events.purchase-tickets')
 // Player Invitation Route
 Volt::route('/invitations/{token}/accept', 'invitations.accept')->name('invitations.accept');
 
+// Check-in Routes
+Route::post('/checkin/scan', [App\Http\Controllers\CheckinController::class, 'scan'])
+    ->middleware(['auth'])
+    ->name('checkin.scan');
+Route::post('/checkin/search', [App\Http\Controllers\CheckinController::class, 'search'])
+    ->middleware(['auth'])
+    ->name('checkin.search');
+
 // Legal Pages
 Volt::route('/terms', 'legal.terms')->name('legal.terms');
 Volt::route('/privacy', 'legal.privacy')->name('legal.privacy');

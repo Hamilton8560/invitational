@@ -2,8 +2,6 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use App\Models\Banner;
 use App\Models\Booth;
 use App\Models\Event;
@@ -13,6 +11,7 @@ use App\Models\Sale;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\WebsiteAd;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SaleFactory extends Factory
 {
@@ -35,7 +34,7 @@ class SaleFactory extends Factory
             'quantity' => fake()->numberBetween(-10000, 10000),
             'unit_price' => fake()->randomFloat(2, 0, 99999999.99),
             'total_amount' => fake()->randomFloat(2, 0, 99999999.99),
-            'status' => fake()->randomElement(["pending","completed","failed","refunded"]),
+            'status' => fake()->randomElement(['pending', 'completed', 'failed', 'refunded']),
             'paddle_transaction_id' => fake()->regexify('[A-Za-z0-9]{255}'),
             'paddle_subscription_id' => fake()->regexify('[A-Za-z0-9]{255}'),
             'payment_method' => fake()->regexify('[A-Za-z0-9]{50}'),

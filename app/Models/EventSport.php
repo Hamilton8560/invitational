@@ -57,7 +57,6 @@ class EventSport extends Model
         return $this->belongsTo(EventTimeSlot::class);
     }
 
-
     public function ageGroups(): HasMany
     {
         return $this->hasMany(AgeGroup::class);

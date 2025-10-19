@@ -2,10 +2,9 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use App\Models\Event;
 use App\Models\Venue;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EventFactory extends Factory
 {
@@ -26,7 +25,7 @@ class EventFactory extends Factory
             'name' => fake()->name(),
             'start_date' => fake()->date(),
             'end_date' => fake()->date(),
-            'status' => fake()->randomElement(["draft","open","closed","completed","cancelled"]),
+            'status' => fake()->randomElement(['draft', 'open', 'closed', 'completed', 'cancelled']),
             'refund_cutoff_date' => fake()->date(),
         ];
     }

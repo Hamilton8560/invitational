@@ -15,6 +15,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $password_confirmation = '';
 
     /**
+     * Mount the component and pre-populate email if provided.
+     */
+    public function mount(): void
+    {
+        $this->email = request()->query('email', '');
+    }
+
+    /**
      * Handle an incoming registration request.
      */
     public function register(): void

@@ -2,7 +2,9 @@
 
 namespace App\Observers;
 
+use App\Jobs\GenerateQRCode;
 use App\Models\Sale;
+use App\Notifications\PurchaseConfirmation;
 
 class SaleObserver
 {
@@ -14,6 +16,15 @@ class SaleObserver
         // When a sale is created with status 'completed', increment product quantity
         if ($sale->status === 'completed') {
             $sale->product->increment('current_quantity', $sale->quantity);
+
+            // Dispatch QR code generation and send confirmation email after QR is ready
+            GenerateQRCode::dispatch($sale)
+                ->chain([
+                    function () use ($sale) {
+                        $sale->refresh();
+                        $sale->user->notify(new PurchaseConfirmation($sale));
+                    },
+                ]);
         }
     }
 
@@ -25,6 +36,15 @@ class SaleObserver
         // If status changed from pending to completed, increment product quantity
         if ($sale->isDirty('status') && $sale->status === 'completed' && $sale->getOriginal('status') === 'pending') {
             $sale->product->increment('current_quantity', $sale->quantity);
+
+            // Dispatch QR code generation and send confirmation email after QR is ready
+            GenerateQRCode::dispatch($sale)
+                ->chain([
+                    function () use ($sale) {
+                        $sale->refresh();
+                        $sale->user->notify(new PurchaseConfirmation($sale));
+                    },
+                ]);
         }
 
         // If status changed to refunded, decrement product quantity

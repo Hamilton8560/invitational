@@ -2,10 +2,9 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use App\Models\AgeGroup;
 use App\Models\EventSport;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AgeGroupFactory extends Factory
 {

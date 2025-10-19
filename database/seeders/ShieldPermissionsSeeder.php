@@ -35,6 +35,8 @@ class ShieldPermissionsSeeder extends Seeder
             'event_template',
             'user',
             'role',
+            'checkin',
+            'activity_log',
         ];
 
         // Define all actions
@@ -84,6 +86,10 @@ class ShieldPermissionsSeeder extends Seeder
             'update_own_website_ad',
             'clone_event',
             'create_event_template',
+            'perform_checkin',
+            'search_registrations',
+            'override_checkin',
+            'view_checkin_dashboard',
         ];
 
         foreach ($customPermissions as $permission) {
@@ -182,6 +188,29 @@ class ShieldPermissionsSeeder extends Seeder
             'view_event',
             'view_any_event',
             'view_own_sale',
+            'view_user',
+        ]);
+
+        // Staff permissions (check-in system)
+        $staff = Role::firstOrCreate(['name' => 'staff']);
+        $staff->syncPermissions([
+            'view_event',
+            'view_any_event',
+            'view_checkin_dashboard',
+            'perform_checkin',
+            'search_registrations',
+            'override_checkin',
+            'view_checkin',
+            'view_any_checkin',
+            'create_checkin',
+            'view_activity_log',
+            'view_any_activity_log',
+            'view_sale',
+            'view_any_sale',
+            'view_team',
+            'view_any_team',
+            'view_individual_player',
+            'view_any_individual_player',
             'view_user',
         ]);
     }

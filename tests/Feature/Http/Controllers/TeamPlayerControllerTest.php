@@ -30,7 +30,6 @@ final class TeamPlayerControllerTest extends TestCase
         $response->assertViewHas('teamPlayers');
     }
 
-
     #[Test]
     public function create_displays_view(): void
     {
@@ -39,7 +38,6 @@ final class TeamPlayerControllerTest extends TestCase
         $response->assertOk();
         $response->assertViewIs('teamPlayer.create');
     }
-
 
     #[Test]
     public function store_uses_form_request_validation(): void
@@ -82,7 +80,6 @@ final class TeamPlayerControllerTest extends TestCase
         $response->assertSessionHas('teamPlayer.id', $teamPlayer->id);
     }
 
-
     #[Test]
     public function show_displays_view(): void
     {
@@ -95,7 +92,6 @@ final class TeamPlayerControllerTest extends TestCase
         $response->assertViewHas('teamPlayer');
     }
 
-
     #[Test]
     public function edit_displays_view(): void
     {
@@ -107,7 +103,6 @@ final class TeamPlayerControllerTest extends TestCase
         $response->assertViewIs('teamPlayer.edit');
         $response->assertViewHas('teamPlayer');
     }
-
 
     #[Test]
     public function update_uses_form_request_validation(): void
@@ -149,7 +144,6 @@ final class TeamPlayerControllerTest extends TestCase
         $this->assertEquals($waiver_signed, $teamPlayer->waiver_signed);
     }
 
-
     #[Test]
     public function destroy_deletes_and_redirects(): void
     {
@@ -161,7 +155,6 @@ final class TeamPlayerControllerTest extends TestCase
 
         $this->assertModelMissing($teamPlayer);
     }
-
 
     #[Test]
     public function statements_uses_form_request_validation(): void

@@ -2,12 +2,11 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use App\Models\Event;
 use App\Models\EventSport;
 use App\Models\EventTimeSlot;
 use App\Models\Sport;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EventSportFactory extends Factory
 {

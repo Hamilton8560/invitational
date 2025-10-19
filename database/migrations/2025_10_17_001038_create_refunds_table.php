@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('sale_id')->constrained('sales')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->text('reason')->nullable();
-            $table->enum('status', ["pending","approved","rejected","completed"])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'completed'])->default('pending');
             $table->string('paddle_refund_id', 255)->nullable();
             $table->foreignId('requested_by')->constrained('users')->onDelete('cascade');
             $table->timestamp('requested_at')->useCurrent();
