@@ -2,7 +2,7 @@
 
 use function Livewire\Volt\{layout};
 
-layout('components.layouts.app');
+layout('components.layouts.public');
 
 ?>
 
