@@ -1,0 +1,122 @@
+created:
+    - app/Http/Controllers/EventController.php
+    - app/Http/Controllers/ProductController.php
+    - app/Http/Controllers/SaleController.php
+    - app/Http/Controllers/TeamController.php
+    - app/Http/Controllers/TeamPlayerController.php
+    - database/factories/VenueFactory.php
+    - database/factories/EventFactory.php
+    - database/factories/SportFactory.php
+    - database/factories/EventTimeSlotFactory.php
+    - database/factories/EventSportFactory.php
+    - database/factories/AgeGroupFactory.php
+    - database/factories/SkillLevelFactory.php
+    - database/factories/DivisionFactory.php
+    - database/factories/ProductFactory.php
+    - database/factories/TeamFactory.php
+    - database/factories/TeamPlayerFactory.php
+    - database/factories/IndividualPlayerFactory.php
+    - database/factories/BoothFactory.php
+    - database/factories/BannerFactory.php
+    - database/factories/WebsiteAdFactory.php
+    - database/factories/SaleFactory.php
+    - database/factories/RefundFactory.php
+    - database/factories/EventTemplateFactory.php
+    - database/migrations/2025_10_17_001022_create_venues_table.php
+    - database/migrations/2025_10_17_001023_create_events_table.php
+    - database/migrations/2025_10_17_001024_create_sports_table.php
+    - database/migrations/2025_10_17_001025_create_event_time_slots_table.php
+    - database/migrations/2025_10_17_001026_create_event_sports_table.php
+    - database/migrations/2025_10_17_001027_create_age_groups_table.php
+    - database/migrations/2025_10_17_001028_create_skill_levels_table.php
+    - database/migrations/2025_10_17_001029_create_divisions_table.php
+    - database/migrations/2025_10_17_001030_create_products_table.php
+    - database/migrations/2025_10_17_001031_create_teams_table.php
+    - database/migrations/2025_10_17_001032_create_team_players_table.php
+    - database/migrations/2025_10_17_001033_create_individual_players_table.php
+    - database/migrations/2025_10_17_001034_create_booths_table.php
+    - database/migrations/2025_10_17_001035_create_banners_table.php
+    - database/migrations/2025_10_17_001036_create_website_ads_table.php
+    - database/migrations/2025_10_17_001037_create_sales_table.php
+    - database/migrations/2025_10_17_001038_create_refunds_table.php
+    - database/migrations/2025_10_17_001039_create_event_templates_table.php
+    - app/Models/Venue.php
+    - app/Models/Event.php
+    - app/Models/Sport.php
+    - app/Models/EventTimeSlot.php
+    - app/Models/EventSport.php
+    - app/Models/AgeGroup.php
+    - app/Models/SkillLevel.php
+    - app/Models/Division.php
+    - app/Models/Product.php
+    - app/Models/Team.php
+    - app/Models/TeamPlayer.php
+    - app/Models/IndividualPlayer.php
+    - app/Models/Booth.php
+    - app/Models/Banner.php
+    - app/Models/WebsiteAd.php
+    - app/Models/Sale.php
+    - app/Models/Refund.php
+    - app/Models/EventTemplate.php
+    - tests/Feature/Http/Controllers/EventControllerTest.php
+    - tests/Feature/Http/Controllers/ProductControllerTest.php
+    - tests/Feature/Http/Controllers/SaleControllerTest.php
+    - tests/Feature/Http/Controllers/TeamControllerTest.php
+    - tests/Feature/Http/Controllers/TeamPlayerControllerTest.php
+    - app/Events/PurchaseCompleted.php
+    - app/Http/Requests/EventStoreRequest.php
+    - app/Http/Requests/EventUpdateRequest.php
+    - app/Http/Requests/EventStatementsRequest.php
+    - app/Http/Requests/ProductStoreRequest.php
+    - app/Http/Requests/ProductUpdateRequest.php
+    - app/Http/Requests/ProductStatementsRequest.php
+    - app/Http/Requests/SaleStoreRequest.php
+    - app/Http/Requests/SaleUpdateRequest.php
+    - app/Http/Requests/SaleStatementsRequest.php
+    - app/Http/Requests/TeamStoreRequest.php
+    - app/Http/Requests/TeamUpdateRequest.php
+    - app/Http/Requests/TeamStatementsRequest.php
+    - app/Http/Requests/TeamPlayerStoreRequest.php
+    - app/Http/Requests/TeamPlayerUpdateRequest.php
+    - app/Http/Requests/TeamPlayerStatementsRequest.php
+    - app/Http/Resources/SaleCollection.php
+    - app/Http/Resources/SaleResource.php
+    - resources/views/event/index.blade.php
+    - resources/views/event/create.blade.php
+    - resources/views/event/show.blade.php
+    - resources/views/event/edit.blade.php
+    - resources/views/product/index.blade.php
+    - resources/views/product/create.blade.php
+    - resources/views/product/show.blade.php
+    - resources/views/product/edit.blade.php
+    - resources/views/team/index.blade.php
+    - resources/views/team/create.blade.php
+    - resources/views/team/show.blade.php
+    - resources/views/team/edit.blade.php
+    - resources/views/teamPlayer/index.blade.php
+    - resources/views/teamPlayer/create.blade.php
+    - resources/views/teamPlayer/show.blade.php
+    - resources/views/teamPlayer/edit.blade.php
+updated:
+    - routes/api.php
+    - routes/web.php
+models:
+    User: { name: string, email: string, email_verified_at: 'datetime nullable', password: string, remember_token: 'string nullable', two_factor_secret: 'text nullable', two_factor_recovery_codes: 'text nullable', two_factor_confirmed_at: 'datetime nullable' }
+    Venue: { name: 'string:255', address: 'text nullable', sports_space_sqft: integer, spectator_space_sqft: integer, total_banner_spots: integer, total_booth_spots: integer, timestamps: timestamps, softdeletes: softDeletes, relationships: { hasMany: Event } }
+    Event: { venue_id: 'id foreign:venues', name: 'string:255', start_date: date, end_date: date, status: 'enum:draft,open,closed,completed,cancelled default:draft', refund_cutoff_date: date, timestamps: timestamps, softdeletes: softDeletes, relationships: { belongsTo: Venue, hasMany: 'EventTimeSlot, EventSport, Product, Team, IndividualPlayer, Sale, Booth, Banner, WebsiteAd' } }
+    Sport: { name: 'string:100', default_space_required_sqft: 'integer nullable', timestamps: timestamps, relationships: { hasMany: EventSport } }
+    EventTimeSlot: { event_id: 'id foreign:events.onDelete.cascade', start_time: datetime, end_time: datetime, available_space_sqft: integer, timestamps: timestamps, relationships: { belongsTo: Event, hasMany: EventSport } }
+    EventSport: { event_id: 'id foreign:events.onDelete.cascade', sport_id: 'id foreign:sports.onDelete.restrict', time_slot_id: 'id foreign:event_time_slots.onDelete.cascade', space_required_sqft: integer, max_teams: 'integer nullable', max_players: 'integer nullable', timestamps: timestamps, relationships: { belongsTo: 'Event, Sport, EventTimeSlot', hasMany: 'AgeGroup, SkillLevel, Division' } }
+    AgeGroup: { event_sport_id: 'id foreign:event_sports.onDelete.cascade', name: 'string:100', min_age: 'integer nullable', max_age: 'integer nullable', timestamps: timestamps, relationships: { belongsTo: EventSport, hasMany: Division } }
+    SkillLevel: { event_sport_id: 'id foreign:event_sports.onDelete.cascade', name: 'string:100', min_rating: 'decimal:3,1 nullable', max_rating: 'decimal:3,1 nullable', timestamps: timestamps, relationships: { belongsTo: EventSport, hasMany: Division } }
+    Division: { event_sport_id: 'id foreign:event_sports.onDelete.cascade', age_group_id: 'id foreign:age_groups.onDelete.setNull nullable', skill_level_id: 'id foreign:skill_levels.onDelete.setNull nullable', name: 'string:255', max_teams: 'integer nullable', max_players: 'integer nullable', timestamps: timestamps, relationships: { belongsTo: 'EventSport, AgeGroup, SkillLevel', hasMany: 'Product, Team, IndividualPlayer' } }
+    Product: { event_id: 'id foreign:events.onDelete.cascade', type: 'enum:team,player,spectator,booth,banner,website_ad', name: 'string:255', description: 'text nullable', price: 'decimal:10,2', max_quantity: 'integer nullable', current_quantity: 'integer default:0', division_id: 'id foreign:divisions.onDelete.cascade nullable', timestamps: timestamps, softdeletes: softDeletes, relationships: { belongsTo: 'Event, Division', hasMany: Sale } }
+    Team: { event_id: 'id foreign:events.onDelete.cascade', division_id: 'id foreign:divisions.onDelete.restrict', owner_id: 'id foreign:users.onDelete.restrict', name: 'string:255', max_players: integer, current_players: 'integer default:0', timestamps: timestamps, softdeletes: softDeletes, relationships: { belongsTo: 'Event, Division, User:owner', hasMany: 'TeamPlayer, Sale' } }
+    TeamPlayer: { team_id: 'id foreign:teams.onDelete.cascade', user_id: 'id foreign:users.onDelete.cascade', jersey_number: 'string:10 nullable', position: 'string:50 nullable', emergency_contact_name: 'string:255', emergency_contact_phone: 'string:20', waiver_signed: 'boolean default:false', waiver_signed_at: 'timestamp nullable', timestamps: timestamps, relationships: { belongsTo: 'Team, User' } }
+    IndividualPlayer: { event_id: 'id foreign:events.onDelete.cascade', division_id: 'id foreign:divisions.onDelete.restrict', user_id: 'id foreign:users.onDelete.cascade', skill_rating: 'decimal:3,1 nullable', emergency_contact_name: 'string:255', emergency_contact_phone: 'string:20', waiver_signed: 'boolean default:false', waiver_signed_at: 'timestamp nullable', timestamps: timestamps, relationships: { belongsTo: 'Event, Division, User', hasMany: Sale } }
+    Booth: { event_id: 'id foreign:events.onDelete.cascade', product_id: 'id foreign:products.onDelete.restrict', buyer_id: 'id foreign:users.onDelete.restrict', booth_number: 'integer nullable', company_name: 'string:255', contact_name: 'string:255', contact_email: 'string:255', contact_phone: 'string:20 nullable', timestamps: timestamps, relationships: { belongsTo: 'Event, Product, User:buyer', hasMany: Sale } }
+    Banner: { event_id: 'id foreign:events.onDelete.cascade', product_id: 'id foreign:products.onDelete.restrict', buyer_id: 'id foreign:users.onDelete.restrict', banner_location: 'string:255 nullable', company_name: 'string:255', banner_image_url: 'text nullable', contact_email: 'string:255', timestamps: timestamps, relationships: { belongsTo: 'Event, Product, User:buyer', hasMany: Sale } }
+    WebsiteAd: { event_id: 'id foreign:events.onDelete.cascade', product_id: 'id foreign:products.onDelete.restrict', buyer_id: 'id foreign:users.onDelete.restrict', ad_placement: 'enum:header,sidebar,footer,popup', company_name: 'string:255', ad_image_url: 'text nullable', ad_link_url: 'text nullable', contact_email: 'string:255', timestamps: timestamps, relationships: { belongsTo: 'Event, Product, User:buyer', hasMany: Sale } }
+    Sale: { event_id: 'id foreign:events.onDelete.cascade', user_id: 'id foreign:users.onDelete.restrict', product_id: 'id foreign:products.onDelete.restrict', quantity: 'integer default:1', unit_price: 'decimal:10,2', total_amount: 'decimal:10,2', status: 'enum:pending,completed,failed,refunded default:pending', paddle_transaction_id: 'string:255 unique nullable', paddle_subscription_id: 'string:255 nullable', payment_method: 'string:50 nullable', team_id: 'id foreign:teams.onDelete.setNull nullable', individual_player_id: 'id foreign:individual_players.onDelete.setNull nullable', booth_id: 'id foreign:booths.onDelete.setNull nullable', banner_id: 'id foreign:banners.onDelete.setNull nullable', website_ad_id: 'id foreign:website_ads.onDelete.setNull nullable', purchased_at: 'timestamp useCurrent', timestamps: timestamps, relationships: { belongsTo: 'Event, User, Product, Team, IndividualPlayer, Booth, Banner, WebsiteAd', hasMany: Refund } }
+    Refund: { sale_id: 'id foreign:sales.onDelete.cascade', amount: 'decimal:10,2', reason: 'text nullable', status: 'enum:pending,approved,rejected,completed default:pending', paddle_refund_id: 'string:255 nullable', requested_by: 'id foreign:users.onDelete.restrict', requested_at: 'timestamp useCurrent', processed_at: 'timestamp nullable', processed_by: 'id foreign:users.onDelete.setNull nullable', timestamps: timestamps, relationships: { belongsTo: 'Sale, User:requestedBy, User:processedBy' } }
+    EventTemplate: { source_event_id: 'id foreign:events.onDelete.cascade', name: 'string:255', description: 'text nullable', created_by: 'id foreign:users.onDelete.restrict', timestamps: timestamps, relationships: { belongsTo: 'Event:sourceEvent, User:creator' } }

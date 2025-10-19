@@ -1,0 +1,36 @@
+<?php
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+use App\Models\Banner;
+use App\Models\Event;
+use App\Models\Product;
+use App\Models\User;
+
+class BannerFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Banner::class;
+
+    /**
+     * Define the model's default state.
+     */
+    public function definition(): array
+    {
+        return [
+            'event_id' => Event::factory()->create()->onDelete,
+            'product_id' => Product::factory()->create()->onDelete,
+            'buyer_id' => User::factory()->create()->onDelete,
+            'banner_location' => fake()->regexify('[A-Za-z0-9]{255}'),
+            'company_name' => fake()->regexify('[A-Za-z0-9]{255}'),
+            'banner_image_url' => fake()->text(),
+            'contact_email' => fake()->regexify('[A-Za-z0-9]{255}'),
+        ];
+    }
+}

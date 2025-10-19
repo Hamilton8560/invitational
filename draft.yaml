@@ -1,0 +1,310 @@
+# ============================================
+# BRYANT INVITATIONAL - LARAVEL BLUEPRINT
+# ============================================
+# Run: php artisan blueprint:build
+# This generates migrations, models, factories, and seeders
+
+models:
+  # ============================================
+  # CORE MODELS
+  # ============================================
+
+  Venue:
+    name: string:255
+    address: text nullable
+    sports_space_sqft: integer
+    spectator_space_sqft: integer
+    total_banner_spots: integer
+    total_booth_spots: integer
+    timestamps: true
+    softDeletes: true
+    relationships:
+      hasMany: Event
+
+  Event:
+    venue_id: id foreign:venues
+    name: string:255
+    start_date: date
+    end_date: date
+    status: enum:draft,open,closed,completed,cancelled default:draft
+    refund_cutoff_date: date
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: Venue
+      hasMany: EventTimeSlot, EventSport, Product, Team, IndividualPlayer, Sale, Booth, Banner, WebsiteAd
+
+  # ============================================
+  # SPORTS & SCHEDULING
+  # ============================================
+
+  Sport:
+    name: string:100
+    default_space_required_sqft: integer nullable
+    timestamps: true
+    relationships:
+      hasMany: EventSport
+
+  EventTimeSlot:
+    event_id: id foreign:events.onDelete.cascade
+    start_time: datetime
+    end_time: datetime
+    available_space_sqft: integer
+    timestamps: true
+    relationships:
+      belongsTo: Event
+      hasMany: EventSport
+
+  EventSport:
+    event_id: id foreign:events.onDelete.cascade
+    sport_id: id foreign:sports.onDelete.restrict
+    time_slot_id: id foreign:event_time_slots.onDelete.cascade
+    space_required_sqft: integer
+    max_teams: integer nullable
+    max_players: integer nullable
+    timestamps: true
+    relationships:
+      belongsTo: Event, Sport, EventTimeSlot
+      hasMany: AgeGroup, SkillLevel, Division
+
+  # ============================================
+  # DIVISIONS (Flexible per Event)
+  # ============================================
+
+  AgeGroup:
+    event_sport_id: id foreign:event_sports.onDelete.cascade
+    name: string:100
+    min_age: integer nullable
+    max_age: integer nullable
+    timestamps: true
+    relationships:
+      belongsTo: EventSport
+      hasMany: Division
+
+  SkillLevel:
+    event_sport_id: id foreign:event_sports.onDelete.cascade
+    name: string:100
+    min_rating: decimal:3,1 nullable
+    max_rating: decimal:3,1 nullable
+    timestamps: true
+    relationships:
+      belongsTo: EventSport
+      hasMany: Division
+
+  Division:
+    event_sport_id: id foreign:event_sports.onDelete.cascade
+    age_group_id: id foreign:age_groups.onDelete.setNull nullable
+    skill_level_id: id foreign:skill_levels.onDelete.setNull nullable
+    name: string:255
+    max_teams: integer nullable
+    max_players: integer nullable
+    timestamps: true
+    relationships:
+      belongsTo: EventSport, AgeGroup, SkillLevel
+      hasMany: Product, Team, IndividualPlayer
+
+  # ============================================
+  # PRODUCTS (What People Buy)
+  # ============================================
+
+  Product:
+    event_id: id foreign:events.onDelete.cascade
+    type: enum:team,player,spectator,booth,banner,website_ad
+    name: string:255
+    description: text nullable
+    price: decimal:10,2
+    max_quantity: integer nullable
+    current_quantity: integer default:0
+    division_id: id foreign:divisions.onDelete.cascade nullable
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: Event, Division
+      hasMany: Sale
+
+  # ============================================
+  # TEAMS & PLAYERS
+  # ============================================
+
+  Team:
+    event_id: id foreign:events.onDelete.cascade
+    division_id: id foreign:divisions.onDelete.restrict
+    owner_id: id foreign:users.onDelete.restrict
+    name: string:255
+    max_players: integer
+    current_players: integer default:0
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: Event, Division, User:owner
+      hasMany: TeamPlayer, Sale
+
+  TeamPlayer:
+    team_id: id foreign:teams.onDelete.cascade
+    user_id: id foreign:users.onDelete.cascade
+    jersey_number: string:10 nullable
+    position: string:50 nullable
+    emergency_contact_name: string:255
+    emergency_contact_phone: string:20
+    waiver_signed: boolean default:false
+    waiver_signed_at: timestamp nullable
+    timestamps: true
+    relationships:
+      belongsTo: Team, User
+
+  IndividualPlayer:
+    event_id: id foreign:events.onDelete.cascade
+    division_id: id foreign:divisions.onDelete.restrict
+    user_id: id foreign:users.onDelete.cascade
+    skill_rating: decimal:3,1 nullable
+    emergency_contact_name: string:255
+    emergency_contact_phone: string:20
+    waiver_signed: boolean default:false
+    waiver_signed_at: timestamp nullable
+    timestamps: true
+    relationships:
+      belongsTo: Event, Division, User
+      hasMany: Sale
+
+  # ============================================
+  # MARKETING (Booths, Banners, Website Ads)
+  # ============================================
+
+  Booth:
+    event_id: id foreign:events.onDelete.cascade
+    product_id: id foreign:products.onDelete.restrict
+    buyer_id: id foreign:users.onDelete.restrict
+    booth_number: integer nullable
+    company_name: string:255
+    contact_name: string:255
+    contact_email: string:255
+    contact_phone: string:20 nullable
+    timestamps: true
+    relationships:
+      belongsTo: Event, Product, User:buyer
+      hasMany: Sale
+
+  Banner:
+    event_id: id foreign:events.onDelete.cascade
+    product_id: id foreign:products.onDelete.restrict
+    buyer_id: id foreign:users.onDelete.restrict
+    banner_location: string:255 nullable
+    company_name: string:255
+    banner_image_url: text nullable
+    contact_email: string:255
+    timestamps: true
+    relationships:
+      belongsTo: Event, Product, User:buyer
+      hasMany: Sale
+
+  WebsiteAd:
+    event_id: id foreign:events.onDelete.cascade
+    product_id: id foreign:products.onDelete.restrict
+    buyer_id: id foreign:users.onDelete.restrict
+    ad_placement: enum:header,sidebar,footer,popup
+    company_name: string:255
+    ad_image_url: text nullable
+    ad_link_url: text nullable
+    contact_email: string:255
+    timestamps: true
+    relationships:
+      belongsTo: Event, Product, User:buyer
+      hasMany: Sale
+
+  # ============================================
+  # SALES & PAYMENTS (Paddle Integration)
+  # ============================================
+
+  Sale:
+    event_id: id foreign:events.onDelete.cascade
+    user_id: id foreign:users.onDelete.restrict
+    product_id: id foreign:products.onDelete.restrict
+    quantity: integer default:1
+    unit_price: decimal:10,2
+    total_amount: decimal:10,2
+    status: enum:pending,completed,failed,refunded default:pending
+    paddle_transaction_id: string:255 unique nullable
+    paddle_subscription_id: string:255 nullable
+    payment_method: string:50 nullable
+    team_id: id foreign:teams.onDelete.setNull nullable
+    individual_player_id: id foreign:individual_players.onDelete.setNull nullable
+    booth_id: id foreign:booths.onDelete.setNull nullable
+    banner_id: id foreign:banners.onDelete.setNull nullable
+    website_ad_id: id foreign:website_ads.onDelete.setNull nullable
+    purchased_at: timestamp useCurrent
+    timestamps: true
+    relationships:
+      belongsTo: Event, User, Product, Team, IndividualPlayer, Booth, Banner, WebsiteAd
+      hasMany: Refund
+
+  Refund:
+    sale_id: id foreign:sales.onDelete.cascade
+    amount: decimal:10,2
+    reason: text nullable
+    status: enum:pending,approved,rejected,completed default:pending
+    paddle_refund_id: string:255 nullable
+    requested_by: id foreign:users.onDelete.restrict
+    requested_at: timestamp useCurrent
+    processed_at: timestamp nullable
+    processed_by: id foreign:users.onDelete.setNull nullable
+    timestamps: true
+    relationships:
+      belongsTo: Sale, User:requestedBy, User:processedBy
+
+  # ============================================
+  # EVENT TEMPLATES (For Cloning)
+  # ============================================
+
+  EventTemplate:
+    source_event_id: id foreign:events.onDelete.cascade
+    name: string:255
+    description: text nullable
+    created_by: id foreign:users.onDelete.restrict
+    timestamps: true
+    relationships:
+      belongsTo: Event:sourceEvent, User:creator
+
+# ============================================
+# CONTROLLERS (Minimal for MVP)
+# ============================================
+
+controllers:
+  Event:
+    resource: web
+    statements:
+      - validate: name, start_date, end_date, venue_id
+      - save: event
+      - flash: event.id
+      - redirect: events.index
+
+  Product:
+    resource: web
+    statements:
+      - validate: type, name, price, event_id
+      - save: product
+      - flash: product.id
+      - redirect: products.index
+
+  Sale:
+    resource: api
+    statements:
+      - validate: product_id, quantity, user_id
+      - save: sale
+      - fire: PurchaseCompleted with:sale
+      - respond: sale, 201
+
+  Team:
+    resource: web
+    statements:
+      - validate: name, division_id, max_players
+      - save: team
+      - flash: team.id
+      - redirect: teams.show
+
+  TeamPlayer:
+    resource: web
+    statements:
+      - validate: user_id, emergency_contact_name, emergency_contact_phone
+      - save: teamPlayer
+      - flash: teamPlayer.id
+      - redirect: teams.show
