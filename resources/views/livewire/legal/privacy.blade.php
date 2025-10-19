@@ -6,9 +6,9 @@ layout('components.layouts.public');
 
 ?>
 
-<div class="min-h-screen bg-zinc-50 dark:bg-zinc-900 py-12 px-4">
+<div class="min-h-screen bg-zinc-50 dark:bg-zinc-900 py-6 sm:py-12 px-4">
     <div class="max-w-4xl mx-auto">
-        <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-8">
+        <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 md:p-8">
             <flux:heading size="xl" class="mb-6">Privacy Policy</flux:heading>
 
             <div class="prose prose-zinc dark:prose-invert max-w-none">

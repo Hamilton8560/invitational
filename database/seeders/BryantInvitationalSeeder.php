@@ -68,6 +68,8 @@ class BryantInvitationalSeeder extends Seeder
             ['name' => 'Cricket', 'default_space_required_sqft' => 8000],  // Action cricket
             ['name' => 'Handball', 'default_space_required_sqft' => 5400],  // 60ft x 90ft
             ['name' => 'Ping Pong', 'default_space_required_sqft' => 200],  // Table tennis
+            ['name' => 'Cornhole', 'default_space_required_sqft' => 300],  // 2 boards + throwing distance
+            ['name' => 'Dodgeball', 'default_space_required_sqft' => 3600],  // 60ft x 60ft
         ];
 
         $sports = [];
@@ -123,6 +125,9 @@ class BryantInvitationalSeeder extends Seeder
             ['key' => 'Sun 12pm-4pm', 'start' => '2025-01-18 12:00:00', 'end' => '2025-01-18 16:00:00', 'space' => 300000],
             ['key' => 'Sun 5pm-8pm', 'start' => '2025-01-18 17:00:00', 'end' => '2025-01-18 20:00:00', 'space' => 300000],
             ['key' => 'Sun 8pm-11pm', 'start' => '2025-01-18 20:00:00', 'end' => '2025-01-18 23:00:00', 'space' => 300000],
+
+            // TBD Slot
+            ['key' => 'TBD', 'start' => '2025-01-17 00:00:00', 'end' => '2025-01-17 00:00:00', 'space' => 300000],
         ];
 
         $timeSlots = [];
@@ -269,6 +274,12 @@ class BryantInvitationalSeeder extends Seeder
 
             // Ping Pong
             ['name' => 'Ping Pong Open', 'sport' => 'Ping Pong', 'age_group' => 'Open', 'skill_level' => 'Intermediate', 'gender' => 'open', 'team_size' => 1, 'display_order' => 100],
+
+            // Cornhole
+            ['name' => 'Cornhole Open', 'sport' => 'Cornhole', 'age_group' => 'Open', 'skill_level' => 'Intermediate', 'gender' => 'open', 'team_size' => 2, 'display_order' => 110],
+
+            // Dodgeball
+            ['name' => 'Dodgeball Open', 'sport' => 'Dodgeball', 'age_group' => 'Open', 'skill_level' => 'Intermediate', 'gender' => 'open', 'team_size' => 6, 'display_order' => 120],
         ];
 
         $divisions = [];
@@ -303,6 +314,8 @@ class BryantInvitationalSeeder extends Seeder
             'Cricket' => ['max_courts' => 2, 'space_allocated_sqft' => 16000],
             'Handball' => ['max_courts' => 4, 'space_allocated_sqft' => 21600],
             'Ping Pong' => ['max_courts' => 20, 'space_allocated_sqft' => 4000],
+            'Cornhole' => ['max_courts' => 10, 'space_allocated_sqft' => 3000],
+            'Dodgeball' => ['max_courts' => 4, 'space_allocated_sqft' => 14400],
         ];
 
         $eventSports = [];
@@ -810,6 +823,50 @@ class BryantInvitationalSeeder extends Seeder
                 'current_quantity' => 0,
                 'division_id' => $divisions['Basketball 3v3 Open']->id,
                 'display_order' => 280,
+            ]
+        );
+
+        // TBD TIME SLOT: Cornhole
+        Product::firstOrCreate(
+            [
+                'event_id' => $event->id,
+                'name' => 'Cornhole Open (TBD)',
+            ],
+            [
+                'type' => 'team_registration',
+                'category' => 'adult',
+                'sport_name' => 'Cornhole',
+                'event_time_slot_id' => $timeSlots['TBD']->id,
+                'description' => 'Cornhole tournament - time to be determined',
+                'price' => 90.00,
+                'cash_prize' => 500.00,
+                'format' => 'round_robin',
+                'max_quantity' => 20,
+                'current_quantity' => 0,
+                'division_id' => $divisions['Cornhole Open']->id,
+                'display_order' => 290,
+            ]
+        );
+
+        // TBD TIME SLOT: Dodgeball
+        Product::firstOrCreate(
+            [
+                'event_id' => $event->id,
+                'name' => 'Dodgeball Open (TBD)',
+            ],
+            [
+                'type' => 'team_registration',
+                'category' => 'adult',
+                'sport_name' => 'Dodgeball',
+                'event_time_slot_id' => $timeSlots['TBD']->id,
+                'description' => 'Dodgeball tournament - time to be determined',
+                'price' => 90.00,
+                'cash_prize' => 500.00,
+                'format' => 'round_robin',
+                'max_quantity' => 16,
+                'current_quantity' => 0,
+                'division_id' => $divisions['Dodgeball Open']->id,
+                'display_order' => 300,
             ]
         );
     }

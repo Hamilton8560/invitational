@@ -5,7 +5,7 @@
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-900">
         <!-- Public Navbar -->
-        <nav class="border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+        <nav class="border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800" x-data="{ mobileMenuOpen: false }">
             <div class="container mx-auto px-4 max-w-7xl">
                 <div class="flex items-center justify-between h-16">
                     <!-- Logo -->
@@ -21,8 +21,8 @@
                         </a>
                     </div>
 
-                    <!-- Auth Buttons -->
-                    <div class="flex items-center gap-3">
+                    <!-- Desktop Auth Buttons -->
+                    <div class="hidden md:flex items-center gap-3">
                         @auth
                             <a href="{{ route('dashboard') }}"
                                class="text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors">
@@ -45,15 +45,14 @@
                     <!-- Mobile Menu Button -->
                     <button type="button"
                             class="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                            x-data="{ open: false }"
-                            @click="open = !open">
-                        <flux:icon.bars-3 class="size-6" x-show="!open" />
-                        <flux:icon.x-mark class="size-6" x-show="open" x-cloak />
+                            @click="mobileMenuOpen = !mobileMenuOpen">
+                        <flux:icon.bars-3 class="size-6" x-show="!mobileMenuOpen" />
+                        <flux:icon.x-mark class="size-6" x-show="mobileMenuOpen" x-cloak />
                     </button>
                 </div>
 
                 <!-- Mobile Menu -->
-                <div class="md:hidden pb-4" x-data="{ open: false }" x-show="open" x-cloak>
+                <div class="md:hidden pb-4" x-show="mobileMenuOpen" x-cloak x-transition>
                     <div class="flex flex-col gap-2 pt-2">
                         <a href="{{ route('events.index') }}"
                            class="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors {{ request()->routeIs('events.*') ? 'bg-zinc-100 dark:bg-zinc-700' : '' }}">

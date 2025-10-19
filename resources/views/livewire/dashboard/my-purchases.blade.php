@@ -74,10 +74,10 @@ $individualRegistrations = computed(function () {
                                     {{ ucfirst($team->sale?->status ?? 'pending') }}
                                 </flux:badge>
                             </div>
-                            <div class="grid md:grid-cols-3 gap-4 text-sm mb-4">
+                            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm mb-4">
                                 <div>
                                     <span class="text-zinc-600 dark:text-zinc-400">Division:</span>
-                                    <span class="text-zinc-900 dark:text-white font-medium ml-1">{{ $team->product->name }}</span>
+                                    <span class="text-zinc-900 dark:text-white font-medium ml-1 break-words">{{ $team->product->name }}</span>
                                 </div>
                                 <div>
                                     <span class="text-zinc-600 dark:text-zinc-400">Event Date:</span>
@@ -161,7 +161,7 @@ $individualRegistrations = computed(function () {
                                     {{ ucfirst($sale->status) }}
                                 </flux:badge>
                             </div>
-                            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                                 <div>
                                     <span class="text-zinc-600 dark:text-zinc-400">Quantity:</span>
                                     <span class="text-zinc-900 dark:text-white font-medium ml-1">{{ $sale->quantity }} {{ Str::plural('ticket', $sale->quantity) }}</span>
@@ -204,10 +204,10 @@ $individualRegistrations = computed(function () {
                                     {{ ucfirst($booth->sale?->status ?? 'pending') }}
                                 </flux:badge>
                             </div>
-                            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                                 <div>
                                     <span class="text-zinc-600 dark:text-zinc-400">Contact:</span>
-                                    <span class="text-zinc-900 dark:text-white font-medium ml-1">{{ $booth->contact_name }}</span>
+                                    <span class="text-zinc-900 dark:text-white font-medium ml-1 break-words">{{ $booth->contact_name }}</span>
                                 </div>
                                 <div>
                                     <span class="text-zinc-600 dark:text-zinc-400">Event Date:</span>
@@ -239,10 +239,10 @@ $individualRegistrations = computed(function () {
                                     {{ ucfirst($banner->sale?->status ?? 'pending') }}
                                 </flux:badge>
                             </div>
-                            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                                 <div>
                                     <span class="text-zinc-600 dark:text-zinc-400">Contact:</span>
-                                    <span class="text-zinc-900 dark:text-white font-medium ml-1">{{ $banner->contact_name }}</span>
+                                    <span class="text-zinc-900 dark:text-white font-medium ml-1 break-words">{{ $banner->contact_name }}</span>
                                 </div>
                                 <div>
                                     <span class="text-zinc-600 dark:text-zinc-400">Event Date:</span>
@@ -278,10 +278,10 @@ $individualRegistrations = computed(function () {
                                     {{ ucfirst($registration->sale?->status ?? 'pending') }}
                                 </flux:badge>
                             </div>
-                            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                                 <div>
                                     <span class="text-zinc-600 dark:text-zinc-400">Division:</span>
-                                    <span class="text-zinc-900 dark:text-white font-medium ml-1">{{ $registration->product->name }}</span>
+                                    <span class="text-zinc-900 dark:text-white font-medium ml-1 break-words">{{ $registration->product->name }}</span>
                                 </div>
                                 <div>
                                     <span class="text-zinc-600 dark:text-zinc-400">Event Date:</span>

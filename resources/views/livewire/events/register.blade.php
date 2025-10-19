@@ -135,15 +135,15 @@ $submit = function () {
             @guest
                 <!-- Login Required Message -->
                 <div class="max-w-2xl mx-auto">
-                    <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-8 text-center">
-                        <flux:icon.lock-closed class="size-16 mx-auto text-zinc-400 mb-4" />
-                        <h2 class="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
+                    <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 md:p-8 text-center">
+                        <flux:icon.lock-closed class="size-12 md:size-16 mx-auto text-zinc-400 mb-4" />
+                        <h2 class="text-xl md:text-2xl font-bold text-zinc-900 dark:text-white mb-2">
                             Login Required
                         </h2>
-                        <p class="text-zinc-600 dark:text-zinc-400 mb-6">
+                        <p class="text-sm md:text-base text-zinc-600 dark:text-zinc-400 mb-6">
                             Please login or create an account to register your team
                         </p>
-                        <div class="flex gap-4 justify-center">
+                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                             <a href="{{ route('login', ['return' => url()->current()]) }}"
                                class="px-6 py-3 text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-lg transition-colors">
                                 Login
@@ -194,7 +194,7 @@ $submit = function () {
                                         <flux:error name="captainName" />
                                     </flux:field>
 
-                                    <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="grid sm:grid-cols-2 gap-4">
                                         <flux:field>
                                             <flux:label>Email Address</flux:label>
                                             <flux:input type="email" wire:model="captainEmail" placeholder="john@example.com" />
@@ -228,7 +228,7 @@ $submit = function () {
                                             <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">
                                                 Player {{ $index + 1 }}
                                             </h3>
-                                            <div class="grid md:grid-cols-2 gap-4">
+                                            <div class="grid sm:grid-cols-2 gap-4">
                                                 <flux:field>
                                                     <flux:label>First Name</flux:label>
                                                     <flux:input wire:model="players.{{ $index }}.first_name" placeholder="First name" />

@@ -86,21 +86,23 @@ $submit = function () {
             </a>
 
             @guest
-                <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-8 text-center">
-                    <flux:icon.lock-closed class="size-16 mx-auto text-zinc-400 mb-4" />
-                    <h2 class="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
-                        Login Required
-                    </h2>
-                    <p class="text-zinc-600 dark:text-zinc-400 mb-6">
-                        Please login or create an account to purchase tickets
-                    </p>
-                    <div class="flex items-center justify-center gap-4">
-                        <flux:button variant="primary" :href="route('login', ['return' => url()->current()])" wire:navigate>
-                            Login
-                        </flux:button>
-                        <flux:button variant="outline" :href="route('register', ['return' => url()->current()])" wire:navigate>
-                            Create Account
-                        </flux:button>
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 md:p-8 text-center">
+                        <flux:icon.lock-closed class="size-12 md:size-16 mx-auto text-zinc-400 mb-4" />
+                        <h2 class="text-xl md:text-2xl font-bold text-zinc-900 dark:text-white mb-2">
+                            Login Required
+                        </h2>
+                        <p class="text-sm md:text-base text-zinc-600 dark:text-zinc-400 mb-6">
+                            Please login or create an account to purchase tickets
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                            <flux:button variant="primary" :href="route('login', ['return' => url()->current()])" wire:navigate class="w-full sm:w-auto">
+                                Login
+                            </flux:button>
+                            <flux:button variant="outline" :href="route('register', ['return' => url()->current()])" wire:navigate class="w-full sm:w-auto">
+                                Create Account
+                            </flux:button>
+                        </div>
                     </div>
                 </div>
             @else
@@ -166,7 +168,7 @@ $submit = function () {
                                         <flux:error name="buyerName" />
                                     </flux:field>
 
-                                    <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="grid sm:grid-cols-2 gap-4">
                                         <flux:field>
                                             <flux:label>Email Address</flux:label>
                                             <flux:input type="email" wire:model="buyerEmail" placeholder="john@example.com" />
