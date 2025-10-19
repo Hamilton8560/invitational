@@ -11,11 +11,19 @@ Volt::route('/events', 'events.browse')->name('events.index');
 Volt::route('/events/{event:slug}', 'events.show')->name('events.show');
 Volt::route('/events/{event:slug}/register/{product}', 'events.register')->name('events.register');
 Volt::route('/events/{event:slug}/reserve-booth/{product}', 'events.reserve-booth')->name('events.reserve-booth');
+Volt::route('/events/{event:slug}/reserve-banner/{product}', 'events.reserve-banner')->name('events.reserve-banner');
+Volt::route('/events/{event:slug}/tickets/{product}', 'events.purchase-tickets')->name('events.purchase-tickets');
 
 // Player Invitation Route
-Volt::route('/players/accept/{token}', 'players.accept-invitation')->name('players.accept-invitation');
+Volt::route('/invitations/{token}/accept', 'invitations.accept')->name('invitations.accept');
 
-Route::view('dashboard', 'dashboard')
+// Legal Pages
+Volt::route('/terms', 'legal.terms')->name('legal.terms');
+Volt::route('/privacy', 'legal.privacy')->name('legal.privacy');
+Volt::route('/refunds', 'legal.refunds')->name('legal.refunds');
+Volt::route('/contact', 'legal.contact')->name('legal.contact');
+
+Volt::route('dashboard', 'dashboard.my-purchases')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 

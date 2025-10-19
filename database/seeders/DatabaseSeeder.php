@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             AdminUserSeeder::class,
             DCConventionCenterEventSeeder::class,
+            BryantInvitationalSeeder::class,
         ]);
     }
 }

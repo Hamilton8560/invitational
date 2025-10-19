@@ -31,7 +31,7 @@ $events = computed(function () {
                 Upcoming Events
             </h1>
             <p class="text-lg text-zinc-600 dark:text-zinc-400">
-                Register for multi-sport tournaments with cash prizes
+                Elite multi-sport tournaments with competitive divisions and substantial cash prizes
             </p>
         </div>
 

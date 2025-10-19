@@ -8,7 +8,7 @@ layout('components.layouts.public');
 state(['event']);
 
 mount(function (Event $event) {
-    $this->event = $event->load(['venue', 'products.division.ageGroup', 'products.eventTimeSlot', 'booths']);
+    $this->event = $event->load(['venue', 'products.division.ageGroup', 'products.eventTimeSlot', 'booths', 'banners']);
 });
 
 $sportsByCategory = computed(function () {
@@ -37,6 +37,32 @@ $availableBooths = computed(function () {
         return 0;
     }
     return $this->boothProduct->max_quantity - $this->event->booths()->count();
+});
+
+$bannerProduct = computed(function () {
+    return $this->event->products()->where('type', 'banner')->first();
+});
+
+$availableBanners = computed(function () {
+    if (!$this->bannerProduct) {
+        return 0;
+    }
+    return $this->bannerProduct->max_quantity - $this->event->banners()->count();
+});
+
+$hasSponsorshipOpportunities = computed(function () {
+    return ($this->boothProduct && $this->availableBooths > 0) || ($this->bannerProduct && $this->availableBanners > 0);
+});
+
+$spectatorTickets = computed(function () {
+    return $this->event->products()
+        ->where('type', 'spectator_ticket')
+        ->orderBy('display_order')
+        ->orderBy('price')
+        ->get()
+        ->filter(function ($ticket) {
+            return $ticket->current_quantity < $ticket->max_quantity;
+        });
 });
 
 ?>
@@ -74,44 +100,128 @@ $availableBooths = computed(function () {
         <!-- Sports Content -->
         <div class="container mx-auto px-4 py-12 max-w-7xl">
             <!-- Sponsorship Opportunities Section -->
-            @if ($this->boothProduct && $this->availableBooths > 0)
+            @if ($this->hasSponsorshipOpportunities)
                 <div class="mb-12">
-                    <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <flux:icon.briefcase class="size-5 text-zinc-600 dark:text-zinc-400" />
+                    <h2 class="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
+                        Sponsorship Opportunities
+                    </h2>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Vendor Booths -->
+                        @if ($this->boothProduct && $this->availableBooths > 0)
+                            <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <flux:icon.briefcase class="size-6 text-zinc-600 dark:text-zinc-400" />
                                     <h3 class="text-xl font-bold text-zinc-900 dark:text-white">
-                                        Vendor Booth Opportunities
+                                        Vendor Booths
                                     </h3>
                                 </div>
-                                <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-3">
+                                <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
                                     Showcase your business at this event. Perfect for reaching our community of athletes and families.
                                 </p>
-                                <div class="flex flex-wrap items-center gap-4 text-sm">
-                                    <div class="flex items-center gap-2">
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex items-center justify-between text-sm">
                                         <span class="text-zinc-600 dark:text-zinc-400">Available:</span>
                                         <span class="font-semibold text-zinc-900 dark:text-white">
                                             {{ $this->availableBooths }} of {{ $this->boothProduct->max_quantity }}
                                         </span>
                                     </div>
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center justify-between text-sm">
                                         <span class="text-zinc-600 dark:text-zinc-400">Price:</span>
                                         <span class="font-semibold text-zinc-900 dark:text-white">
                                             ${{ number_format($this->boothProduct->price, 0) }}
                                         </span>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="flex-shrink-0">
                                 <a href="{{ route('events.reserve-booth', ['event' => $event->slug, 'product' => $this->boothProduct->id]) }}"
                                    wire:navigate
-                                   class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-lg transition-colors">
+                                   class="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-lg transition-colors">
                                     Reserve a Booth
-                                    <flux:icon.arrow-right class="size-4" />
                                 </a>
                             </div>
-                        </div>
+                        @endif
+
+                        <!-- Banner Advertisements -->
+                        @if ($this->bannerProduct && $this->availableBanners > 0)
+                            <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <flux:icon.flag class="size-6 text-zinc-600 dark:text-zinc-400" />
+                                    <h3 class="text-xl font-bold text-zinc-900 dark:text-white">
+                                        Banner Ads
+                                    </h3>
+                                </div>
+                                <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+                                    Maximize your brand visibility with premium banner placement throughout the venue.
+                                </p>
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-zinc-600 dark:text-zinc-400">Available:</span>
+                                        <span class="font-semibold text-zinc-900 dark:text-white">
+                                            {{ $this->availableBanners }} of {{ $this->bannerProduct->max_quantity }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-zinc-600 dark:text-zinc-400">Price:</span>
+                                        <span class="font-semibold text-zinc-900 dark:text-white">
+                                            ${{ number_format($this->bannerProduct->price, 0) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <a href="{{ route('events.reserve-banner', ['event' => $event->slug, 'product' => $this->bannerProduct->id]) }}"
+                                   wire:navigate
+                                   class="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-lg transition-colors">
+                                    Reserve a Banner
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            <!-- Spectator Tickets Section -->
+            @if ($this->spectatorTickets->isNotEmpty())
+                <div class="mb-12">
+                    <h2 class="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
+                        Spectator Tickets
+                    </h2>
+
+                    <div class="grid md:grid-cols-3 gap-6">
+                        @foreach ($this->spectatorTickets as $ticket)
+                            <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <flux:icon.ticket class="size-6 text-zinc-600 dark:text-zinc-400" />
+                                    <h3 class="text-xl font-bold text-zinc-900 dark:text-white">
+                                        {{ $ticket->name }}
+                                    </h3>
+                                </div>
+
+                                @if ($ticket->description)
+                                    <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+                                        {{ $ticket->description }}
+                                    </p>
+                                @endif
+
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-2xl font-bold text-zinc-900 dark:text-white">
+                                            ${{ number_format($ticket->price, 0) }}
+                                        </span>
+                                        <span class="text-sm text-zinc-600 dark:text-zinc-400">
+                                            per ticket
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-zinc-600 dark:text-zinc-400">
+                                        {{ number_format($ticket->max_quantity - $ticket->current_quantity) }} available
+                                    </div>
+                                </div>
+
+                                <a href="{{ route('events.purchase-tickets', ['event' => $event->slug, 'product' => $ticket->id]) }}"
+                                   wire:navigate
+                                   class="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-lg transition-colors">
+                                    Buy Tickets
+                                </a>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @endif

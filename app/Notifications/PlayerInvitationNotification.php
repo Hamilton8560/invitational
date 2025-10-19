@@ -24,20 +24,25 @@ class PlayerInvitationNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $team = $this->invitation->team;
-        $event = $team->event;
-        $acceptUrl = route('players.accept-invitation', ['token' => $this->invitation->token]);
+        $product = $team->product;
+        $division = $product->division;
+        $event = $product->event;
+        $acceptUrl = route('invitations.accept', ['token' => $this->invitation->token]);
 
         return (new MailMessage)
             ->subject("You've been invited to join {$team->name}")
             ->greeting("Hello {$this->invitation->first_name}!")
             ->line("You've been invited to join **{$team->name}** for the upcoming {$event->name}.")
-            ->line("**Event Details:**")
+            ->line('**Event Details:**')
             ->line("📅 {$event->start_date->format('F j, Y')} - {$event->end_date->format('F j, Y')}")
             ->line("📍 {$event->venue->name}")
-            ->action('Accept Invitation', $acceptUrl)
-            ->line('This invitation will expire on ' . $this->invitation->expires_at->format('F j, Y') . '.')
+            ->line("🏆 {$division->sport->name} - {$division->name}")
+            ->line('')
+            ->line("Click the button below to accept your invitation. No password needed - you'll be automatically logged in!")
+            ->action('Accept Invitation & Join Team', $acceptUrl)
+            ->line('This invitation will expire on '.$this->invitation->expires_at->format('F j, Y').'.')
             ->line('If you have any questions, please contact your team captain.')
-            ->salutation('See you on the court!');
+            ->salutation('See you at the tournament!');
     }
 
     public function toArray(object $notifiable): array

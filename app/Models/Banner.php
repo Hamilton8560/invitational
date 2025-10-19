@@ -22,8 +22,10 @@ class Banner extends Model
         'buyer_id',
         'banner_location',
         'company_name',
+        'contact_name',
         'banner_image_url',
         'contact_email',
+        'contact_phone',
     ];
 
     /**

@@ -2,15 +2,14 @@
 
 use App\Models\Event;
 use App\Models\Product;
-use App\Models\Booth;
 use App\Models\Sale;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use function Livewire\Volt\{state, mount, rules, layout};
+use function Livewire\Volt\{state, mount, rules, layout, computed};
 
 layout('components.layouts.public');
 
-state(['event', 'product', 'companyName', 'contactName', 'contactEmail', 'contactPhone', 'waiverAccepted' => false]);
+state(['event', 'product', 'quantity' => 1, 'buyerName', 'buyerEmail', 'buyerPhone', 'termsAccepted' => false]);
 
 mount(function (Event $event, Product $product) {
     $this->event = $event->load(['venue']);
@@ -18,59 +17,59 @@ mount(function (Event $event, Product $product) {
 });
 
 rules([
-    'companyName' => 'required|string|max:255',
-    'contactName' => 'required|string|max:255',
-    'contactEmail' => 'required|email|max:255',
-    'contactPhone' => 'required|string|max:20',
-    'waiverAccepted' => 'accepted',
+    'quantity' => 'required|integer|min:1|max:10',
+    'buyerName' => 'required|string|max:255',
+    'buyerEmail' => 'required|email|max:255',
+    'buyerPhone' => 'required|string|max:20',
+    'termsAccepted' => 'accepted',
 ]);
+
+$totalPrice = computed(function () {
+    return $this->product->price * $this->quantity;
+});
+
+$availableTickets = computed(function () {
+    return $this->product->max_quantity - $this->product->current_quantity;
+});
 
 $submit = function () {
     $this->validate();
 
+    // Check if enough tickets are available
+    if ($this->quantity > $this->availableTickets) {
+        $this->addError('quantity', 'Only ' . $this->availableTickets . ' tickets remaining.');
+        return;
+    }
+
     DB::transaction(function () {
         // Find or create user
         $user = User::firstOrCreate(
-            ['email' => $this->contactEmail],
+            ['email' => $this->buyerEmail],
             [
-                'name' => $this->contactName,
+                'name' => $this->buyerName,
                 'password' => bcrypt(str()->random(32)),
             ]
         );
-
-        // Create booth reservation
-        $booth = Booth::create([
-            'event_id' => $this->event->id,
-            'product_id' => $this->product->id,
-            'buyer_id' => $user->id,
-            'booth_number' => $this->event->booths()->max('booth_number') + 1,
-            'company_name' => $this->companyName,
-            'contact_name' => $this->contactName,
-            'contact_email' => $this->contactEmail,
-            'contact_phone' => $this->contactPhone,
-        ]);
 
         // Create sale for payment tracking
         $sale = Sale::create([
             'event_id' => $this->event->id,
             'product_id' => $this->product->id,
-            'booth_id' => $booth->id,
             'user_id' => $user->id,
-            'quantity' => 1,
+            'quantity' => $this->quantity,
             'unit_price' => $this->product->price,
-            'total_amount' => $this->product->price,
+            'total_amount' => $this->totalPrice,
             'status' => 'pending',
         ]);
 
-        // Increment product quantity
-        $this->product->increment('current_quantity');
+        // Increment product quantity by number of tickets sold
+        $this->product->increment('current_quantity', $this->quantity);
 
-        // Store booth ID in session for payment flow
-        session()->put('pending_booth_id', $booth->id);
+        // Store sale ID in session for payment flow
         session()->put('pending_sale_id', $sale->id);
     });
 
-    session()->flash('message', 'Booth reservation submitted successfully! Continue to payment.');
+    session()->flash('message', 'Ticket purchase submitted successfully! Continue to payment.');
 
     // TODO: Redirect to payment page when implemented
     $this->redirect(route('events.show', $this->event->slug));
@@ -93,7 +92,7 @@ $submit = function () {
                         Login Required
                     </h2>
                     <p class="text-zinc-600 dark:text-zinc-400 mb-6">
-                        Please login or create an account to reserve a booth
+                        Please login or create an account to purchase tickets
                     </p>
                     <div class="flex items-center justify-center gap-4">
                         <flux:button variant="primary" :href="route('login', ['return' => url()->current()])" wire:navigate>
@@ -110,81 +109,102 @@ $submit = function () {
                 <div class="lg:col-span-2">
                     <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-6">
                         <div class="flex items-center gap-3 mb-2">
-                            <flux:icon.briefcase class="size-6 text-zinc-600 dark:text-zinc-400" />
+                            <flux:icon.ticket class="size-6 text-zinc-600 dark:text-zinc-400" />
                             <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">
-                                Reserve Vendor Booth
+                                Purchase Spectator Tickets
                             </h1>
                         </div>
                         <p class="text-zinc-600 dark:text-zinc-400 mb-8">
-                            Complete the form below to reserve your booth space
+                            Complete the form below to purchase your tickets
                         </p>
 
                         <form wire:submit="submit" class="space-y-8">
-                            <!-- Company Information -->
+                            <!-- Ticket Selection -->
                             <div>
                                 <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-4 pb-2 border-b border-zinc-200 dark:border-zinc-700">
-                                    Company Information
+                                    Ticket Selection
                                 </h2>
                                 <div class="space-y-4">
+                                    <div class="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 border border-zinc-200 dark:border-zinc-700">
+                                        <h3 class="font-semibold text-zinc-900 dark:text-white mb-2">{{ $product->name }}</h3>
+                                        @if ($product->description)
+                                            <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-3">{{ $product->description }}</p>
+                                        @endif
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-zinc-600 dark:text-zinc-400">Price per ticket:</span>
+                                            <span class="text-lg font-bold text-zinc-900 dark:text-white">${{ number_format($product->price, 2) }}</span>
+                                        </div>
+                                    </div>
+
                                     <flux:field>
-                                        <flux:label>Company Name</flux:label>
-                                        <flux:input wire:model="companyName" placeholder="Enter your company name" />
-                                        <flux:error name="companyName" />
+                                        <flux:label>Number of Tickets</flux:label>
+                                        <flux:input type="number" wire:model.live="quantity" min="1" max="10" />
+                                        <flux:error name="quantity" />
+                                        <flux:description>{{ $this->availableTickets }} tickets available</flux:description>
                                     </flux:field>
+
+                                    <div class="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-semibold text-amber-900 dark:text-amber-100">Total Price:</span>
+                                            <span class="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                                                ${{ number_format($this->totalPrice, 2) }}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Contact Information -->
+                            <!-- Buyer Information -->
                             <div>
                                 <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-4 pb-2 border-b border-zinc-200 dark:border-zinc-700">
-                                    Primary Contact
+                                    Buyer Information
                                 </h2>
                                 <div class="space-y-4">
                                     <flux:field>
                                         <flux:label>Full Name</flux:label>
-                                        <flux:input wire:model="contactName" placeholder="John Smith" />
-                                        <flux:error name="contactName" />
+                                        <flux:input wire:model="buyerName" placeholder="John Smith" />
+                                        <flux:error name="buyerName" />
                                     </flux:field>
 
                                     <div class="grid md:grid-cols-2 gap-4">
                                         <flux:field>
                                             <flux:label>Email Address</flux:label>
-                                            <flux:input type="email" wire:model="contactEmail" placeholder="john@company.com" />
-                                            <flux:error name="contactEmail" />
+                                            <flux:input type="email" wire:model="buyerEmail" placeholder="john@example.com" />
+                                            <flux:error name="buyerEmail" />
                                         </flux:field>
 
                                         <flux:field>
                                             <flux:label>Phone Number</flux:label>
-                                            <flux:input type="tel" wire:model="contactPhone" placeholder="(555) 123-4567" />
-                                            <flux:error name="contactPhone" />
+                                            <flux:input type="tel" wire:model="buyerPhone" placeholder="(555) 123-4567" />
+                                            <flux:error name="buyerPhone" />
                                         </flux:field>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Waiver -->
+                            <!-- Terms -->
                             <div>
                                 <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-4 pb-2 border-b border-zinc-200 dark:border-zinc-700">
-                                    Terms & Agreement
+                                    Terms & Conditions
                                 </h2>
                                 <div class="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-6 border border-zinc-200 dark:border-zinc-700">
                                     <div class="prose prose-sm dark:prose-invert max-w-none mb-4">
                                         <p class="text-zinc-600 dark:text-zinc-400">
-                                            By reserving a booth, you acknowledge and agree to:
+                                            By purchasing tickets, you acknowledge and agree to:
                                         </p>
                                         <ul class="text-zinc-600 dark:text-zinc-400 list-disc list-inside space-y-1 mt-2">
-                                            <li>Comply with all venue rules and regulations</li>
-                                            <li>Set up and tear down within designated times</li>
-                                            <li>Maintain a professional and family-friendly booth</li>
-                                            <li>Refunds must be requested before the event cutoff date</li>
-                                            <li>Booth space is assigned and cannot be modified without approval</li>
+                                            <li>Tickets are non-transferable and non-refundable</li>
+                                            <li>You must bring a valid ID for entry</li>
+                                            <li>Event schedule and participants subject to change</li>
+                                            <li>Venue rules and regulations must be followed</li>
+                                            <li>Refunds available only before the event cutoff date</li>
                                         </ul>
                                     </div>
 
                                     <flux:field>
-                                        <flux:checkbox wire:model="waiverAccepted" />
+                                        <flux:checkbox wire:model="termsAccepted" />
                                         <flux:label>I have read and agree to the terms and conditions</flux:label>
-                                        <flux:error name="waiverAccepted" />
+                                        <flux:error name="termsAccepted" />
                                     </flux:field>
                                 </div>
                             </div>
@@ -229,43 +249,34 @@ $submit = function () {
                             </div>
                         </div>
 
-                        <!-- Product Details -->
+                        <!-- Ticket Details -->
                         <div class="space-y-4 mb-6 pb-6 border-b border-zinc-200 dark:border-zinc-700">
                             <div>
-                                <h3 class="text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Product</h3>
+                                <h3 class="text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Ticket Type</h3>
                                 <p class="text-zinc-900 dark:text-white font-medium">{{ $product->name }}</p>
                             </div>
 
-                            @if ($product->description)
-                                <div>
-                                    <h3 class="text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Description</h3>
-                                    <p class="text-sm text-zinc-700 dark:text-zinc-300">
-                                        {{ $product->description }}
-                                    </p>
-                                </div>
-                            @endif
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-zinc-600 dark:text-zinc-400">Quantity</span>
+                                <span class="font-semibold text-zinc-900 dark:text-white">{{ $quantity }}</span>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-zinc-600 dark:text-zinc-400">Price per ticket</span>
+                                <span class="font-semibold text-zinc-900 dark:text-white">${{ number_format($product->price, 2) }}</span>
+                            </div>
                         </div>
 
                         <!-- Pricing -->
                         <div class="space-y-3">
                             <div class="flex items-center justify-between text-zinc-900 dark:text-white">
-                                <span class="font-medium">Booth Fee</span>
-                                <span class="text-xl font-bold">${{ number_format($product->price, 2) }}</span>
+                                <span class="font-medium">Total</span>
+                                <span class="text-2xl font-bold">${{ number_format($this->totalPrice, 2) }}</span>
                             </div>
 
                             <p class="text-xs text-zinc-600 dark:text-zinc-400">
                                 Payment processing fee will be calculated at checkout
                             </p>
-                        </div>
-
-                        <!-- Available Spots -->
-                        <div class="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-700">
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-zinc-600 dark:text-zinc-400">Booths Remaining</span>
-                                <span class="font-semibold text-zinc-900 dark:text-white">
-                                    {{ $product->max_quantity - $event->booths()->count() }} / {{ $product->max_quantity }}
-                                </span>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -89,12 +89,12 @@
         <!-- Footer -->
         <footer class="border-t border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 mt-20">
             <div class="container mx-auto px-4 py-12 max-w-7xl">
-                <div class="grid md:grid-cols-3 gap-8">
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <!-- Brand -->
                     <div>
                         <x-app-logo />
                         <p class="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-                            Multi-sport tournament platform featuring competitive events with cash prizes.
+                            The Invitational hosts elite multi-sport tournaments featuring competitive divisions and substantial cash prizes.
                         </p>
                     </div>
 
@@ -103,13 +103,35 @@
                         <h3 class="text-sm font-semibold text-zinc-900 dark:text-white mb-4">Quick Links</h3>
                         <ul class="space-y-2">
                             <li>
-                                <a href="{{ route('events.index') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+                                <a href="{{ route('events.index') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" wire:navigate>
                                     Browse Events
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('home') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
-                                    About Us
+                                <a href="{{ route('legal.contact') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" wire:navigate>
+                                    Contact Us
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Legal -->
+                    <div>
+                        <h3 class="text-sm font-semibold text-zinc-900 dark:text-white mb-4">Legal</h3>
+                        <ul class="space-y-2">
+                            <li>
+                                <a href="{{ route('legal.terms') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" wire:navigate>
+                                    Terms of Service
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('legal.privacy') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" wire:navigate>
+                                    Privacy Policy
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('legal.refunds') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors" wire:navigate>
+                                    Refund Policy
                                 </a>
                             </li>
                         </ul>
@@ -151,7 +173,7 @@
                 <!-- Copyright -->
                 <div class="mt-8 pt-8 border-t border-zinc-200 dark:border-zinc-700">
                     <p class="text-sm text-zinc-600 dark:text-zinc-400 text-center">
-                        © {{ date('Y') }} Bryant Invitational. All rights reserved.
+                        © {{ date('Y') }} The Invitational. All rights reserved.
                     </p>
                 </div>
             </div>

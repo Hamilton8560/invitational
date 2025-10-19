@@ -36,10 +36,10 @@ rules([
     'captainName' => 'required|string|max:255',
     'captainEmail' => 'required|email|max:255',
     'captainPhone' => 'required|string|max:20',
-    'players.*.first_name' => 'required|string|max:255',
-    'players.*.last_name' => 'required|string|max:255',
-    'players.*.email' => 'required|email|max:255',
-    'players.*.date_of_birth' => 'required|date|before:today',
+    'players.*.first_name' => 'nullable|string|max:255',
+    'players.*.last_name' => 'nullable|string|max:255',
+    'players.*.email' => 'nullable|email|max:255',
+    'players.*.date_of_birth' => 'nullable|date|before:today',
     'waiverAccepted' => 'accepted',
 ]);
 
@@ -67,13 +67,20 @@ $submit = function () {
         ]);
 
         // Create player invitations and send emails
-        foreach ($this->players as $playerData) {
+        // Only process players with complete information
+        $validPlayers = collect($this->players)->filter(function ($player) {
+            return !empty($player['email']) &&
+                   !empty($player['first_name']) &&
+                   !empty($player['last_name']);
+        });
+
+        foreach ($validPlayers as $playerData) {
             $invitation = PlayerInvitation::create([
                 'team_id' => $team->id,
                 'first_name' => $playerData['first_name'],
                 'last_name' => $playerData['last_name'],
                 'email' => $playerData['email'],
-                'date_of_birth' => $playerData['date_of_birth'],
+                'date_of_birth' => $playerData['date_of_birth'] ?? null,
                 'token' => PlayerInvitation::generateToken(),
                 'expires_at' => now()->addDays(30),
             ]);
@@ -85,6 +92,9 @@ $submit = function () {
             );
             $notifiable->notify(new PlayerInvitationNotification($invitation));
         }
+
+        // Update team's current player count
+        $team->update(['current_players' => $validPlayers->count()]);
 
         // Create sale for payment tracking
         $sale = Sale::create([
@@ -122,6 +132,30 @@ $submit = function () {
                 <span class="text-sm font-medium">Back to Event</span>
             </a>
 
+            @guest
+                <!-- Login Required Message -->
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-8 text-center">
+                        <flux:icon.lock-closed class="size-16 mx-auto text-zinc-400 mb-4" />
+                        <h2 class="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
+                            Login Required
+                        </h2>
+                        <p class="text-zinc-600 dark:text-zinc-400 mb-6">
+                            Please login or create an account to register your team
+                        </p>
+                        <div class="flex gap-4 justify-center">
+                            <a href="{{ route('login', ['return' => url()->current()]) }}"
+                               class="px-6 py-3 text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-lg transition-colors">
+                                Login
+                            </a>
+                            <a href="{{ route('register', ['return' => url()->current()]) }}"
+                               class="px-6 py-3 text-sm font-medium text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-lg transition-colors">
+                                Create Account
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @else
             <div class="grid lg:grid-cols-3 gap-8">
                 <!-- Main Form -->
                 <div class="lg:col-span-2">
@@ -181,9 +215,12 @@ $submit = function () {
                                 <h2 class="text-xl font-semibold text-zinc-900 dark:text-white mb-4 pb-2 border-b border-zinc-200 dark:border-zinc-700">
                                     Player Roster
                                     <span class="text-sm font-normal text-zinc-600 dark:text-zinc-400 ml-2">
-                                        ({{ count($players) }} players required)
+                                        (Optional - Add now or later from your dashboard)
                                     </span>
                                 </h2>
+                                <flux:text class="mb-4 text-zinc-600 dark:text-zinc-400">
+                                    You can register your team now and add players later. Players will receive an email invitation to join your team.
+                                </flux:text>
 
                                 <div class="space-y-6">
                                     @foreach ($players as $index => $player)
@@ -353,5 +390,6 @@ $submit = function () {
                     </div>
                 </div>
             </div>
+            @endguest
         </div>
 </div>
