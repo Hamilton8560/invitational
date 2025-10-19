@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public $withinTransaction = false;
+
     /**
      * Run the migrations.
      */
@@ -15,9 +17,9 @@ return new class extends Migration
 
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained('events', 'onDelete');
-            $table->foreignId('user_id')->constrained('users', 'onDelete');
-            $table->foreignId('product_id')->constrained('products', 'onDelete');
+            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->integer('quantity')->default(1);
             $table->decimal('unit_price', 10, 2);
             $table->decimal('total_amount', 10, 2);
@@ -25,11 +27,11 @@ return new class extends Migration
             $table->string('paddle_transaction_id', 255)->unique()->nullable();
             $table->string('paddle_subscription_id', 255)->nullable();
             $table->string('payment_method', 50)->nullable();
-            $table->foreignId('team_id')->nullable()->constrained('teams', 'onDelete');
-            $table->foreignId('individual_player_id')->nullable()->constrained('individual_players', 'onDelete');
-            $table->foreignId('booth_id')->nullable()->constrained('booths', 'onDelete');
-            $table->foreignId('banner_id')->nullable()->constrained('banners', 'onDelete');
-            $table->foreignId('website_ad_id')->nullable()->constrained('website_ads', 'onDelete');
+            $table->foreignId('team_id')->nullable()->constrained('teams')->onDelete('cascade');
+            $table->foreignId('individual_player_id')->nullable()->constrained('individual_players')->onDelete('cascade');
+            $table->foreignId('booth_id')->nullable()->constrained('booths')->onDelete('cascade');
+            $table->foreignId('banner_id')->nullable()->constrained('banners')->onDelete('cascade');
+            $table->foreignId('website_ad_id')->nullable()->constrained('website_ads')->onDelete('cascade');
             $table->timestamp('purchased_at')->useCurrent();
             $table->timestamps();
         });

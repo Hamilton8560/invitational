@@ -880,7 +880,7 @@ class BryantInvitationalSeeder extends Seeder
                 'name' => 'Vendor Booth - 10x10 Space',
             ],
             [
-                'type' => 'booth',
+                'type' => 'advertising',
                 'category' => 'general',
                 'sport_name' => null,
                 'description' => '10x10 booth space for product/service promotion throughout the weekend',
@@ -899,7 +899,7 @@ class BryantInvitationalSeeder extends Seeder
                 'name' => 'Banner Advertisement - Prime Location',
             ],
             [
-                'type' => 'banner',
+                'type' => 'advertising',
                 'category' => 'general',
                 'sport_name' => null,
                 'description' => 'Large banner display in high-traffic area (entrance/main court)',
@@ -918,7 +918,7 @@ class BryantInvitationalSeeder extends Seeder
                 'name' => 'Banner Advertisement - Standard Location',
             ],
             [
-                'type' => 'banner',
+                'type' => 'advertising',
                 'category' => 'general',
                 'sport_name' => null,
                 'description' => 'Banner display in spectator seating areas',
@@ -937,7 +937,7 @@ class BryantInvitationalSeeder extends Seeder
                 'name' => 'Premium Sponsor Package - Booth + Banner',
             ],
             [
-                'type' => 'booth',
+                'type' => 'advertising',
                 'category' => 'general',
                 'sport_name' => null,
                 'description' => 'Premium package including booth space and prime banner location',

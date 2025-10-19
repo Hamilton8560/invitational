@@ -36,7 +36,14 @@ class EventResource extends Resource
                     ->required(),
                 Forms\Components\DatePicker::make('end_date')
                     ->required(),
-                Forms\Components\TextInput::make('status')
+                Forms\Components\Select::make('status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'open' => 'Open',
+                        'closed' => 'Closed',
+                        'completed' => 'Completed',
+                        'cancelled' => 'Cancelled',
+                    ])
                     ->required(),
                 Forms\Components\DatePicker::make('refund_cutoff_date')
                     ->required(),

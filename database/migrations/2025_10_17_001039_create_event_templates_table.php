@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public $withinTransaction = false;
+
     /**
      * Run the migrations.
      */
@@ -15,10 +17,10 @@ return new class extends Migration
 
         Schema::create('event_templates', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('source_event_id')->constrained('events', 'onDelete');
+            $table->foreignId('source_event_id')->constrained('events')->onDelete('cascade');
             $table->string('name', 255);
             $table->text('description')->nullable();
-            $table->foreignId('created_by')->constrained('users', 'onDelete');
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->foreignId('creator_id');
             $table->timestamps();
         });

@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public $withinTransaction = false;
+
     /**
      * Run the migrations.
      */
@@ -15,9 +17,9 @@ return new class extends Migration
 
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained('events', 'onDelete');
-            $table->foreignId('division_id')->constrained('divisions', 'onDelete');
-            $table->foreignId('owner_id')->constrained('users', 'onDelete');
+            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
+            $table->foreignId('division_id')->constrained('divisions')->onDelete('cascade');
+            $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
             $table->string('name', 255);
             $table->integer('max_players');
             $table->integer('current_players')->default(0);

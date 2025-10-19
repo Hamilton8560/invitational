@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public $withinTransaction = false;
+
     /**
      * Run the migrations.
      */
@@ -15,9 +17,9 @@ return new class extends Migration
 
         Schema::create('booths', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained('events', 'onDelete');
-            $table->foreignId('product_id')->constrained('products', 'onDelete');
-            $table->foreignId('buyer_id')->constrained('users', 'onDelete');
+            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->foreignId('buyer_id')->constrained('users')->onDelete('cascade');
             $table->integer('booth_number')->nullable();
             $table->string('company_name', 255);
             $table->string('contact_name', 255);

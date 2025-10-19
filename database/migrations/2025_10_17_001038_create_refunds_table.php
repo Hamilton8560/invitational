@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public $withinTransaction = false;
+
     /**
      * Run the migrations.
      */
@@ -15,15 +17,15 @@ return new class extends Migration
 
         Schema::create('refunds', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sale_id')->constrained('sales', 'onDelete');
+            $table->foreignId('sale_id')->constrained('sales')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->text('reason')->nullable();
             $table->enum('status', ["pending","approved","rejected","completed"])->default('pending');
             $table->string('paddle_refund_id', 255)->nullable();
-            $table->foreignId('requested_by')->constrained('users', 'onDelete');
+            $table->foreignId('requested_by')->constrained('users')->onDelete('cascade');
             $table->timestamp('requested_at')->useCurrent();
             $table->timestamp('processed_at')->nullable();
-            $table->foreignId('processed_by')->nullable()->constrained('users', 'onDelete');
+            $table->foreignId('processed_by')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('requested_by_id');
             $table->foreignId('processed_by_id');
             $table->timestamps();
