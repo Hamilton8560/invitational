@@ -194,7 +194,7 @@ $signUp = function () {
                         </div>
                         <h3 class="text-2xl font-bold text-white mb-2">Gold Sponsor</h3>
                         <div class="text-4xl font-extrabold text-amber-400 mb-1">$5,000</div>
-                        <p class="text-sm text-stone-400">Premium visibility</p>
+                        <p class="text-sm text-stone-400">per sport</p>
                     </div>
                     <ul class="space-y-3 mb-8 text-sm">
                         <li class="flex items-start gap-2 text-stone-300">
@@ -231,7 +231,7 @@ $signUp = function () {
                         </div>
                         <h3 class="text-2xl font-bold text-white mb-2">Silver Sponsor</h3>
                         <div class="text-4xl font-extrabold text-stone-300 mb-1">$2,500</div>
-                        <p class="text-sm text-stone-400">Strong visibility</p>
+                        <p class="text-sm text-stone-400">per sport</p>
                     </div>
                     <ul class="space-y-3 mb-8 text-sm">
                         <li class="flex items-start gap-2 text-stone-300">
@@ -268,7 +268,7 @@ $signUp = function () {
                         </div>
                         <h3 class="text-2xl font-bold text-white mb-2">Bronze Sponsor</h3>
                         <div class="text-4xl font-extrabold text-orange-700 mb-1">$1,000</div>
-                        <p class="text-sm text-stone-400">Essential visibility</p>
+                        <p class="text-sm text-stone-400">per sport</p>
                     </div>
                     <ul class="space-y-3 mb-8 text-sm">
                         <li class="flex items-start gap-2 text-stone-300">

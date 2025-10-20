@@ -230,10 +230,13 @@ $spectatorTickets = computed(function () {
                                 @endif
                                 <div class="space-y-2 mb-4">
                                     <div class="flex items-center justify-between">
-                                        <span class="text-zinc-600 dark:text-zinc-400 text-sm">Investment:</span>
-                                        <span class="text-2xl font-bold @if($package->tier === 'gold') text-amber-500 @elseif($package->tier === 'silver') text-zinc-400 dark:text-zinc-500 @else text-orange-700 @endif">
-                                            ${{ number_format($package->price, 0) }}
-                                        </span>
+                                        <span class="text-zinc-600 dark:text-zinc-400 text-sm">Starting at:</span>
+                                        <div class="text-right">
+                                            <div class="text-2xl font-bold @if($package->tier === 'gold') text-amber-500 @elseif($package->tier === 'silver') text-zinc-400 dark:text-zinc-500 @else text-orange-700 @endif">
+                                                ${{ number_format($package->price, 0) }}
+                                            </div>
+                                            <div class="text-xs text-zinc-500 dark:text-zinc-400">per sport</div>
+                                        </div>
                                     </div>
                                     <div class="text-sm text-zinc-600 dark:text-zinc-400">
                                         {{ $package->benefits->where('is_enabled', true)->count() }} premium benefits included

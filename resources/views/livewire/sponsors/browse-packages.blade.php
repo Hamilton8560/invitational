@@ -69,9 +69,12 @@ $packages = computed(function () {
                                 @endif
                             </div>
                             <h2 class="text-2xl font-bold text-zinc-900 dark:text-white mb-2">{{ $package->name }}</h2>
-                            <div class="text-5xl font-extrabold mb-2 @if($package->tier === 'gold') text-amber-500 @elseif($package->tier === 'silver') text-zinc-400 dark:text-zinc-500 @else text-orange-700 @endif">
+                            <div class="text-5xl font-extrabold mb-1 @if($package->tier === 'gold') text-amber-500 @elseif($package->tier === 'silver') text-zinc-400 dark:text-zinc-500 @else text-orange-700 @endif">
                                 ${{ number_format($package->price, 0) }}
                             </div>
+                            <p class="text-sm text-zinc-600 dark:text-zinc-400 font-medium mb-2">
+                                per sport
+                            </p>
                             @if ($package->description)
                                 <p class="text-sm text-zinc-600 dark:text-zinc-400">
                                     {{ $package->description }}

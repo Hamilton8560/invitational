@@ -46,6 +46,14 @@ $availableSports = computed(function () {
     })->get() : collect();
 });
 
+$calculatedPrice = computed(function () {
+    $sportCount = count($this->selectedSportIds);
+    if ($sportCount === 0) {
+        return 0;
+    }
+    return $this->package->price * $sportCount;
+});
+
 rules([
     'selectedEventId' => 'required|exists:events,id',
     'selectedSportIds' => 'required|array|min:1',
@@ -90,14 +98,17 @@ $submit = function () {
         $sponsorship->sports()->attach($this->selectedSportIds);
 
         // Create sale for payment tracking
+        $sportCount = count($this->selectedSportIds);
+        $calculatedTotal = $this->package->price * $sportCount;
+
         $sale = Sale::create([
             'event_id' => $this->selectedEventId,
             'product_id' => null, // Sponsorships don't use products
             'sponsorship_id' => $sponsorship->id,
             'user_id' => $user->id,
-            'quantity' => 1,
+            'quantity' => $sportCount,
             'unit_price' => $this->package->price,
-            'total_amount' => $this->package->price,
+            'total_amount' => $calculatedTotal,
             'status' => 'pending',
         ]);
 
@@ -175,10 +186,13 @@ $submit = function () {
                                 <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                                     Which sports would you like to sponsor? *
                                 </label>
+                                <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-3">
+                                    Price: ${{ number_format($package->price, 0) }} per sport selected
+                                </p>
                                 <div class="space-y-2">
                                     @foreach ($this->availableSports as $sport)
                                         <label class="flex items-center gap-2 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 cursor-pointer">
-                                            <input type="checkbox" wire:model="selectedSportIds" value="{{ $sport->id }}" class="rounded text-amber-500 focus:ring-amber-500">
+                                            <input type="checkbox" wire:model.live="selectedSportIds" value="{{ $sport->id }}" class="rounded text-amber-500 focus:ring-amber-500">
                                             <span class="text-sm text-zinc-900 dark:text-white">{{ $sport->name }}</span>
                                         </label>
                                     @endforeach
@@ -283,10 +297,24 @@ $submit = function () {
                         </div>
 
                         <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm text-zinc-600 dark:text-zinc-400">Package Price</span>
+                            <div class="space-y-2 mb-3">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-zinc-600 dark:text-zinc-400">Base Price per Sport</span>
+                                    <span class="text-zinc-900 dark:text-white font-medium">
+                                        ${{ number_format($package->price, 0) }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-zinc-600 dark:text-zinc-400">Sports Selected</span>
+                                    <span class="text-zinc-900 dark:text-white font-medium">
+                                        {{ count($selectedSportIds) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center mb-2 pt-2 border-t border-zinc-200 dark:border-zinc-700">
+                                <span class="text-sm font-medium text-zinc-900 dark:text-white">Total Price</span>
                                 <span class="text-2xl font-bold @if($package->tier === 'gold') text-amber-500 @elseif($package->tier === 'silver') text-zinc-400 @else text-orange-700 @endif">
-                                    ${{ number_format($package->price, 0) }}
+                                    ${{ number_format($this->calculatedPrice, 0) }}
                                 </span>
                             </div>
                             <p class="text-xs text-zinc-500 dark:text-zinc-400">
