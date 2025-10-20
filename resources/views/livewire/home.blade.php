@@ -15,6 +15,16 @@ $events = computed(function () {
         ->get();
 });
 
+$sponsorPackages = computed(function () {
+    return \App\Models\SponsorPackage::with(['benefits' => function ($query) {
+        $query->whereRaw('is_enabled = true')->orderBy('display_order')->limit(5);
+    }])
+        ->whereRaw('is_template = true')
+        ->whereRaw('is_active = true')
+        ->ordered()
+        ->get();
+});
+
 $signUp = function () {
     return $this->redirect(route('register', ['email' => $this->email]), navigate: true);
 };
@@ -181,117 +191,56 @@ $signUp = function () {
             </div>
 
             <div class="grid md:grid-cols-3 gap-6 md:gap-8 mb-8">
-                <!-- Gold Package -->
-                <div class="relative bg-gradient-to-b from-amber-500/10 to-stone-800/50 rounded-xl border-2 border-amber-500/50 p-8 hover:border-amber-400 transition-all hover:shadow-lg hover:shadow-amber-500/20">
-                    <div class="absolute -top-4 left-1/2 -translate-x-1/2">
-                        <span class="inline-flex items-center px-4 py-1 text-xs font-bold uppercase tracking-wider rounded-full bg-amber-500 text-stone-900">
-                            Most Popular
-                        </span>
-                    </div>
-                    <div class="text-center mb-6">
-                        <div class="inline-flex items-center justify-center size-16 bg-amber-400/20 rounded-full mb-4">
-                            <flux:icon.star class="size-8 text-amber-400" />
+                @foreach ($this->sponsorPackages as $package)
+                    <div class="relative @if($package->tier === 'gold') bg-gradient-to-b from-amber-500/10 to-stone-800/50 border-amber-500/50 hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/20 @elseif($package->tier === 'silver') bg-stone-800/50 border-stone-600 hover:border-stone-500 @else bg-stone-800/50 border-orange-900/50 hover:border-orange-800 @endif rounded-xl border-2 p-8 transition-all">
+                        @if($package->tier === 'gold')
+                            <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+                                <span class="inline-flex items-center px-4 py-1 text-xs font-bold uppercase tracking-wider rounded-full bg-amber-500 text-stone-900">
+                                    Most Popular
+                                </span>
+                            </div>
+                        @endif
+                        <div class="text-center mb-6">
+                            <div class="inline-flex items-center justify-center size-16 rounded-full mb-4 @if($package->tier === 'gold') bg-amber-400/20 @elseif($package->tier === 'silver') bg-stone-400/20 @else bg-orange-900/20 @endif">
+                                @if($package->tier === 'gold')
+                                    <flux:icon.star class="size-8 text-amber-400" />
+                                @elseif($package->tier === 'silver')
+                                    <flux:icon.sparkles class="size-8 text-stone-400" />
+                                @else
+                                    <flux:icon.check-circle class="size-8 text-orange-700" />
+                                @endif
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-2">{{ $package->name }}</h3>
+                            <div class="text-4xl font-extrabold mb-1 @if($package->tier === 'gold') text-amber-400 @elseif($package->tier === 'silver') text-stone-300 @else text-orange-700 @endif">
+                                ${{ number_format($package->price, 0) }}
+                            </div>
+                            <p class="text-sm text-stone-400">per sport</p>
                         </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Gold Sponsor</h3>
-                        <div class="text-4xl font-extrabold text-amber-400 mb-1">$5,000</div>
-                        <p class="text-sm text-stone-400">per sport</p>
+                        <ul class="space-y-3 mb-8 text-sm">
+                            @foreach ($package->benefits->take(4) as $benefit)
+                                <li class="flex items-start gap-2 text-stone-300">
+                                    <flux:icon.check class="size-5 flex-shrink-0 mt-0.5 @if($package->tier === 'gold') text-amber-400 @elseif($package->tier === 'silver') text-stone-400 @else text-orange-700 @endif" />
+                                    <span>
+                                        @if($benefit->quantity > 1)
+                                            {{ $benefit->quantity }} {{ $benefit->name }}
+                                        @else
+                                            {{ $benefit->name }}
+                                        @endif
+                                    </span>
+                                </li>
+                            @endforeach
+                            @if($package->benefits->count() > 4)
+                                <li class="flex items-start gap-2 text-stone-300">
+                                    <flux:icon.check class="size-5 flex-shrink-0 mt-0.5 @if($package->tier === 'gold') text-amber-400 @elseif($package->tier === 'silver') text-stone-400 @else text-orange-700 @endif" />
+                                    <span>And {{ $package->benefits->count() - 4 }} more premium {{ Str::plural('benefit', $package->benefits->count() - 4) }}...</span>
+                                </li>
+                            @endif
+                        </ul>
+                        <a href="{{ route('sponsors.browse') }}" class="block w-full text-center px-6 py-3 font-bold rounded-lg transition-colors @if($package->tier === 'gold') bg-amber-500 text-stone-900 hover:bg-amber-400 @elseif($package->tier === 'silver') bg-stone-700 text-white hover:bg-stone-600 @else bg-orange-900 text-white hover:bg-orange-800 @endif">
+                            View Package
+                        </a>
                     </div>
-                    <ul class="space-y-3 mb-8 text-sm">
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                            <span>Logo on all jerseys/uniforms</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                            <span>2 main stage banners</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                            <span>5 social media shoutouts</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                            <span>10x10 booth space + 10 VIP tickets</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                            <span>And 6 more premium benefits...</span>
-                        </li>
-                    </ul>
-                    <a href="{{ route('sponsors.browse') }}" class="block w-full text-center px-6 py-3 font-bold rounded-lg bg-amber-500 text-stone-900 hover:bg-amber-400 transition-colors">
-                        View Package
-                    </a>
-                </div>
-
-                <!-- Silver Package -->
-                <div class="bg-stone-800/50 rounded-xl border-2 border-stone-600 p-8 hover:border-stone-500 transition-all">
-                    <div class="text-center mb-6">
-                        <div class="inline-flex items-center justify-center size-16 bg-stone-400/20 rounded-full mb-4">
-                            <flux:icon.sparkles class="size-8 text-stone-400" />
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Silver Sponsor</h3>
-                        <div class="text-4xl font-extrabold text-stone-300 mb-1">$2,500</div>
-                        <p class="text-sm text-stone-400">per sport</p>
-                    </div>
-                    <ul class="space-y-3 mb-8 text-sm">
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-stone-400 flex-shrink-0 mt-0.5" />
-                            <span>10x10 booth space</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-stone-400 flex-shrink-0 mt-0.5" />
-                            <span>Website logo placement</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-stone-400 flex-shrink-0 mt-0.5" />
-                            <span>2 social media posts</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-stone-400 flex-shrink-0 mt-0.5" />
-                            <span>Court signage + 4 VIP tickets</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-stone-400 flex-shrink-0 mt-0.5" />
-                            <span>And 2 more benefits...</span>
-                        </li>
-                    </ul>
-                    <a href="{{ route('sponsors.browse') }}" class="block w-full text-center px-6 py-3 font-bold rounded-lg bg-stone-700 text-white hover:bg-stone-600 transition-colors">
-                        View Package
-                    </a>
-                </div>
-
-                <!-- Bronze Package -->
-                <div class="bg-stone-800/50 rounded-xl border-2 border-orange-900/50 p-8 hover:border-orange-800 transition-all">
-                    <div class="text-center mb-6">
-                        <div class="inline-flex items-center justify-center size-16 bg-orange-900/20 rounded-full mb-4">
-                            <flux:icon.check-circle class="size-8 text-orange-700" />
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Bronze Sponsor</h3>
-                        <div class="text-4xl font-extrabold text-orange-700 mb-1">$1,000</div>
-                        <p class="text-sm text-stone-400">per sport</p>
-                    </div>
-                    <ul class="space-y-3 mb-8 text-sm">
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-orange-700 flex-shrink-0 mt-0.5" />
-                            <span>Quarter-page program ad</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-orange-700 flex-shrink-0 mt-0.5" />
-                            <span>Giveaway distribution rights</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-orange-700 flex-shrink-0 mt-0.5" />
-                            <span>Website listing</span>
-                        </li>
-                        <li class="flex items-start gap-2 text-stone-300">
-                            <flux:icon.check class="size-5 text-orange-700 flex-shrink-0 mt-0.5" />
-                            <span>Social media mention</span>
-                        </li>
-                    </ul>
-                    <a href="{{ route('sponsors.browse') }}" class="block w-full text-center px-6 py-3 font-bold rounded-lg bg-orange-900 text-white hover:bg-orange-800 transition-colors">
-                        View Package
-                    </a>
-                </div>
+                @endforeach
             </div>
 
             <div class="text-center">
