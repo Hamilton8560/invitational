@@ -55,6 +55,13 @@ $individualRegistrations = computed(function () {
             </flux:button>
         </div>
 
+        <!-- Admin-Only: Venue Space Analytics -->
+        @if(auth()->user()->hasRole(['super_admin', 'admin']))
+            <div class="border-t-4 border-blue-500 dark:border-blue-600">
+                @livewire('dashboard.admin-space-visualization')
+            </div>
+        @endif
+
         <!-- Team Registrations -->
         @if ($this->teams->isNotEmpty())
             <div class="space-y-4">

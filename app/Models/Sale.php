@@ -32,6 +32,7 @@ class Sale extends Model
         'booth_id',
         'banner_id',
         'website_ad_id',
+        'sponsorship_id',
         'purchased_at',
     ];
 
@@ -54,6 +55,7 @@ class Sale extends Model
             'booth_id' => 'integer',
             'banner_id' => 'integer',
             'website_ad_id' => 'integer',
+            'sponsorship_id' => 'integer',
             'purchased_at' => 'timestamp',
         ];
     }
@@ -96,6 +98,11 @@ class Sale extends Model
     public function websiteAd(): BelongsTo
     {
         return $this->belongsTo(WebsiteAd::class);
+    }
+
+    public function sponsorship(): BelongsTo
+    {
+        return $this->belongsTo(Sponsorship::class);
     }
 
     public function refunds(): HasMany

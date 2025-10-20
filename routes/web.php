@@ -15,6 +15,10 @@ Volt::route('/events/{event:slug}/reserve-booth/{product}', 'events.reserve-boot
 Volt::route('/events/{event:slug}/reserve-banner/{product}', 'events.reserve-banner')->name('events.reserve-banner');
 Volt::route('/events/{event:slug}/tickets/{product}', 'events.purchase-tickets')->name('events.purchase-tickets');
 
+// Sponsorship Routes
+Volt::route('/sponsors', 'sponsors.browse-packages')->name('sponsors.browse');
+Volt::route('/sponsors/{package}', 'sponsors.purchase-package')->name('sponsors.purchase');
+
 // Player Invitation Route
 Volt::route('/invitations/{token}/accept', 'invitations.accept')->name('invitations.accept');
 

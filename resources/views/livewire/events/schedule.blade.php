@@ -23,14 +23,47 @@ $timeSlots = computed(function () {
 });
 
 $sports = computed(function () {
-    return $this->event->products()
-        ->where('type', 'team_registration')
+    $sportOrder = [
+        'Futsal',
+        'Pickleball',
+        'Basketball',
+        'Wiffle Ball',
+        'Action Cricket',
+        'Cricket',
+        'Cornhole',
+        'Lacrosse',
+        'Dodgeball',
+        'Volleyball',
+        'Handball',
+        'Field Hockey',
+    ];
+
+    $sports = $this->event->products()
+        ->whereIn('type', ['team_registration', 'individual_registration'])
         ->whereNotNull('sport_name')
         ->get()
         ->pluck('sport_name')
-        ->unique()
-        ->sort()
-        ->values();
+        ->unique();
+
+    return $sports->sortBy(function ($sport) use ($sportOrder) {
+        $index = array_search($sport, $sportOrder);
+        return $index !== false ? $index : 999;
+    })->values();
+});
+
+$unscheduledProducts = computed(function () {
+    $products = $this->event->products()
+        ->whereIn('type', ['team_registration', 'individual_registration'])
+        ->whereNull('event_time_slot_id')
+        ->whereNotNull('sport_name')
+        ->with('division')
+        ->get();
+
+    if ($this->selectedSport === 'all') {
+        return $products;
+    }
+
+    return $products->where('sport_name', $this->selectedSport);
 });
 
 $scheduleData = computed(function () {
@@ -48,7 +81,7 @@ $scheduleData = computed(function () {
             }
 
             $products = $this->event->products()
-                ->where('type', 'team_registration')
+                ->whereIn('type', ['team_registration', 'individual_registration'])
                 ->where('sport_name', $sport)
                 ->where('event_time_slot_id', $timeSlot->id)
                 ->with('division')
@@ -73,6 +106,7 @@ $sportColors = [
     'Futsal' => 'green',
     'Volleyball' => 'blue',
     'Cricket' => 'purple',
+    'Action Cricket' => 'purple',
     'Dodgeball' => 'red',
     'Field Hockey' => 'pink',
     'Pickleball' => 'yellow',
@@ -190,6 +224,65 @@ $sportColors = [
                     </div>
                 @endforeach
             </div>
+
+            <!-- Unscheduled / TBD Section -->
+            @if ($this->unscheduledProducts->isNotEmpty())
+                <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow mt-6">
+                    <!-- TBD Header -->
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <flux:heading size="lg" class="mb-1">
+                                    Time To Be Determined
+                                </flux:heading>
+                                <flux:text class="text-lg font-semibold text-amber-600 dark:text-amber-400">
+                                    Registration Open - Schedule Coming Soon
+                                </flux:text>
+                            </div>
+                            <div class="text-sm text-zinc-500 dark:text-zinc-400">
+                                {{ $this->unscheduledProducts->count() }} {{ Str::plural('event', $this->unscheduledProducts->count()) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unscheduled Sports Grid -->
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            @foreach ($this->unscheduledProducts->groupBy('sport_name') as $sportName => $products)
+                                <div class="space-y-3">
+                                    <!-- Sport Name Header -->
+                                    <div class="flex items-center gap-2 pb-2 border-b border-zinc-200 dark:border-zinc-700">
+                                        <div class="w-1 h-6 rounded-full bg-{{ $sportColors[$sportName] ?? 'blue' }}-500"></div>
+                                        <flux:heading size="sm" class="font-semibold">
+                                            {{ $sportName }}
+                                        </flux:heading>
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                                            ({{ $products->count() }})
+                                        </span>
+                                    </div>
+
+                                    <!-- Divisions List -->
+                                    <div class="space-y-2">
+                                        @foreach ($products as $product)
+                                            <a href="{{ route('events.register', [$event, $product]) }}"
+                                               class="block group">
+                                                <div class="flex items-center justify-between p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-{{ $sportColors[$sportName] ?? 'blue' }}-500 dark:hover:border-{{ $sportColors[$sportName] ?? 'blue' }}-500 hover:bg-{{ $sportColors[$sportName] ?? 'blue' }}-50 dark:hover:bg-{{ $sportColors[$sportName] ?? 'blue' }}-900/20 transition-all cursor-pointer">
+                                                    <span class="text-sm font-medium text-zinc-900 dark:text-white group-hover:text-{{ $sportColors[$sportName] ?? 'blue' }}-600 dark:group-hover:text-{{ $sportColors[$sportName] ?? 'blue' }}-400">
+                                                        {{ $product->division?->name ?? $product->name }}
+                                                    </span>
+                                                    <svg class="w-4 h-4 text-zinc-400 group-hover:text-{{ $sportColors[$sportName] ?? 'blue' }}-500 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                                    </svg>
+                                                </div>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
         @endif
     </div>
 </div>

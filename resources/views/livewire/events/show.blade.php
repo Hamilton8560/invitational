@@ -12,10 +12,24 @@ mount(function (Event $event) {
 });
 
 $sportsByCategory = computed(function () {
-    return $this->event->products()
+    $sportOrder = [
+        'Futsal',
+        'Pickleball',
+        'Basketball',
+        'Wiffle Ball',
+        'Action Cricket',
+        'Cricket',
+        'Cornhole',
+        'Lacrosse',
+        'Dodgeball',
+        'Volleyball',
+        'Handball',
+        'Field Hockey',
+    ];
+
+    $grouped = $this->event->products()
         ->where('type', 'team_registration')
         ->with(['division.ageGroup', 'eventTimeSlot'])
-        ->orderBy('sport_name')
         ->orderBy('display_order')
         ->get()
         ->groupBy(function ($product) {
@@ -26,6 +40,11 @@ $sportsByCategory = computed(function () {
                 return $product->category ?? 'general';
             });
         });
+
+    return $grouped->sortBy(function ($products, $sportName) use ($sportOrder) {
+        $index = array_search($sportName, $sportOrder);
+        return $index !== false ? $index : 999;
+    });
 });
 
 $boothProduct = computed(function () {
@@ -51,7 +70,15 @@ $availableBanners = computed(function () {
 });
 
 $hasSponsorshipOpportunities = computed(function () {
-    return ($this->boothProduct && $this->availableBooths > 0) || ($this->bannerProduct && $this->availableBanners > 0);
+    return ($this->boothProduct && $this->availableBooths > 0) || ($this->bannerProduct && $this->availableBanners > 0) || $this->sponsorPackages->isNotEmpty();
+});
+
+$sponsorPackages = computed(function () {
+    return \App\Models\SponsorPackage::with('benefits')
+        ->whereRaw('is_template = true')
+        ->whereRaw('is_active = true')
+        ->ordered()
+        ->get();
 });
 
 $spectatorTickets = computed(function () {
@@ -109,10 +136,10 @@ $spectatorTickets = computed(function () {
             @if ($this->hasSponsorshipOpportunities)
                 <div class="mb-12">
                     <h2 class="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-6">
-                        Sponsorship Opportunities
+                        Sponsorship & Partnership Opportunities
                     </h2>
 
-                    <div class="grid sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         <!-- Vendor Booths -->
                         @if ($this->boothProduct && $this->availableBooths > 0)
                             <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
@@ -180,6 +207,45 @@ $spectatorTickets = computed(function () {
                                 </a>
                             </div>
                         @endif
+
+                        <!-- Sponsor Packages -->
+                        @foreach ($this->sponsorPackages as $package)
+                            <div class="bg-white dark:bg-zinc-800 rounded-lg border-2 @if($package->tier === 'gold') border-amber-500/50 dark:border-amber-500/30 @elseif($package->tier === 'silver') border-zinc-400 dark:border-zinc-600 @else border-orange-900/50 dark:border-orange-900/30 @endif p-6">
+                                <div class="flex items-center gap-3 mb-3">
+                                    @if($package->tier === 'gold')
+                                        <flux:icon.star class="size-6 text-amber-500" />
+                                    @elseif($package->tier === 'silver')
+                                        <flux:icon.sparkles class="size-6 text-zinc-400 dark:text-zinc-500" />
+                                    @else
+                                        <flux:icon.check-circle class="size-6 text-orange-700 dark:text-orange-800" />
+                                    @endif
+                                    <h3 class="text-xl font-bold text-zinc-900 dark:text-white">
+                                        {{ $package->name }}
+                                    </h3>
+                                </div>
+                                @if ($package->description)
+                                    <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+                                        {{ Str::limit($package->description, 80) }}
+                                    </p>
+                                @endif
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-zinc-600 dark:text-zinc-400 text-sm">Investment:</span>
+                                        <span class="text-2xl font-bold @if($package->tier === 'gold') text-amber-500 @elseif($package->tier === 'silver') text-zinc-400 dark:text-zinc-500 @else text-orange-700 @endif">
+                                            ${{ number_format($package->price, 0) }}
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-zinc-600 dark:text-zinc-400">
+                                        {{ $package->benefits->where('is_enabled', true)->count() }} premium benefits included
+                                    </div>
+                                </div>
+                                <a href="{{ route('sponsors.browse') }}"
+                                   wire:navigate
+                                   class="block w-full text-center px-4 py-2 text-sm font-medium rounded-lg transition-colors @if($package->tier === 'gold') text-white bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 @elseif($package->tier === 'silver') text-white bg-zinc-700 hover:bg-zinc-800 dark:bg-zinc-600 dark:hover:bg-zinc-700 @else text-white bg-orange-900 hover:bg-orange-800 dark:bg-orange-800 dark:hover:bg-orange-700 @endif">
+                                    View {{ ucfirst($package->tier) }} Package
+                                </a>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @endif
@@ -257,7 +323,7 @@ $spectatorTickets = computed(function () {
                     <div class="space-y-4" x-ref="sportsList">
                         @foreach ($this->sportsByCategory as $sportName => $categorizedProducts)
                             <div
-                                x-data="{ expanded: {{ $sportName === 'Basketball' ? 'true' : 'false' }} }"
+                                x-data="{ expanded: false }"
                                 x-show="search === '' || '{{ strtolower($sportName) }}'.includes(search.toLowerCase())"
                                 x-transition
                                 class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden"

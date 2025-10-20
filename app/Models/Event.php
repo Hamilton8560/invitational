@@ -111,4 +111,14 @@ class Event extends Model
     {
         return $this->hasMany(WebsiteAd::class);
     }
+
+    public function sponsorPackages(): HasMany
+    {
+        return $this->hasMany(SponsorPackage::class);
+    }
+
+    public function sponsorships(): HasMany
+    {
+        return $this->hasMany(Sponsorship::class);
+    }
 }
