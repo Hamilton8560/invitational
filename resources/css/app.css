@@ -24,16 +24,17 @@
 }
 
 @theme {
-    --color-accent: var(--color-amber-400);
-    --color-accent-content: var(--color-amber-600);
-    --color-accent-foreground: var(--color-amber-950);
+    --color-accent: var(--color-stone-400);
+    --color-accent-content: var(--color-stone-600);
+    --color-accent-foreground: var(--color-stone-950);
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-amber-400);
-        --color-accent-content: var(--color-amber-400);
-        --color-accent-foreground: var(--color-amber-950);
+        --color-accent: var(--color-stone-400);
+        --color-accent-content: var(--color-stone-400);
+        --color-accent-foreground: var(--color-black);
+        --color-bg: var(--color-stone-900);
     }
 }
 

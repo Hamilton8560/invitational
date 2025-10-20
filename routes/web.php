@@ -9,6 +9,7 @@ Volt::route('/', 'home')->name('home');
 // Public Event Registration Routes
 Volt::route('/events', 'events.browse')->name('events.index');
 Volt::route('/events/{event:slug}', 'events.show')->name('events.show');
+Volt::route('/events/{event:slug}/schedule', 'events.schedule')->name('events.schedule');
 Volt::route('/events/{event:slug}/register/{product}', 'events.register')->name('events.register');
 Volt::route('/events/{event:slug}/reserve-booth/{product}', 'events.reserve-booth')->name('events.reserve-booth');
 Volt::route('/events/{event:slug}/reserve-banner/{product}', 'events.reserve-banner')->name('events.reserve-banner');

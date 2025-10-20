@@ -25,8 +25,17 @@ class DivisionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('event_sport_id')
-                    ->relationship('eventSport', 'id')
+                    ->label('Event Sport')
+                    ->relationship('eventSport')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->sport?->name ?? 'N/A')
                     ->required(),
+                Forms\Components\Select::make('event_time_slot_id')
+                    ->relationship('eventTimeSlot', 'start_time')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->start_time?->format('M j, Y g:i A').' - '.$record->end_time?->format('g:i A'))
+                    ->searchable()
+                    ->preload()
+                    ->label('Time Slot')
+                    ->helperText('Assign this division to a specific time slot'),
                 Forms\Components\Select::make('age_group_id')
                     ->relationship('ageGroup', 'name'),
                 Forms\Components\Select::make('skill_level_id')
@@ -44,8 +53,12 @@ class DivisionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('eventSport.id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('eventSport.sport.name')
+                    ->label('Sport')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('eventTimeSlot.start_time')
+                    ->label('Time Slot')
+                    ->dateTime('M j g:i A')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('ageGroup.name')
                     ->numeric()
@@ -71,7 +84,11 @@ class DivisionResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('event_time_slot_id')
+                    ->relationship('eventTimeSlot', 'start_time')
+                    ->label('Time Slot')
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

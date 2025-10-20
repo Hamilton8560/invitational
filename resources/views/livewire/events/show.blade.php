@@ -76,9 +76,15 @@ $spectatorTickets = computed(function () {
                     <span class="text-sm font-medium">Back to Events</span>
                 </a>
 
-                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
-                    {{ $event->name }}
-                </h1>
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white">
+                        {{ $event->name }}
+                    </h1>
+
+                    <flux:button href="{{ route('events.schedule', $event) }}" variant="primary" icon="calendar">
+                        View Schedule
+                    </flux:button>
+                </div>
 
                 <div class="flex flex-wrap gap-3 sm:gap-6 text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
                     <div class="flex items-center gap-2">
@@ -308,7 +314,7 @@ $spectatorTickets = computed(function () {
                                                                         <div class="flex items-center justify-between text-sm">
                                                                             <span class="text-zinc-600 dark:text-zinc-400">Time:</span>
                                                                             <span class="font-medium text-zinc-900 dark:text-white">
-                                                                                {{ $product->eventTimeSlot->start_time->format('D g:i A') }}
+                                                                                {{ $product->eventTimeSlot->start_time->format('D g:i A') }} - {{ $product->eventTimeSlot->end_time->format('g:i A') }}
                                                                             </span>
                                                                         </div>
                                                                     @endif
