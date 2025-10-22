@@ -34,6 +34,14 @@ class Sale extends Model
         'website_ad_id',
         'sponsorship_id',
         'purchased_at',
+        'stripe_checkout_session_id',
+        'stripe_payment_intent_id',
+        'stripe_customer_id',
+        'paypal_order_id',
+        'paypal_payer_id',
+        'paypal_capture_id',
+        'last_payment_check_at',
+        'qr_code_path',
     ];
 
     /**
@@ -57,6 +65,7 @@ class Sale extends Model
             'website_ad_id' => 'integer',
             'sponsorship_id' => 'integer',
             'purchased_at' => 'timestamp',
+            'last_payment_check_at' => 'datetime',
         ];
     }
 
@@ -108,5 +117,30 @@ class Sale extends Model
     public function refunds(): HasMany
     {
         return $this->hasMany(Refund::class);
+    }
+
+    /**
+     * Check if this sale needs payment verification
+     */
+    public function needsPaymentVerification(): bool
+    {
+        return $this->status === 'pending'
+            && ($this->stripe_checkout_session_id !== null || $this->paypal_order_id !== null);
+    }
+
+    /**
+     * Check if payment check is stale (hasn't been checked recently)
+     */
+    public function paymentCheckIsStale(): bool
+    {
+        if ($this->status !== 'pending') {
+            return false;
+        }
+
+        if ($this->last_payment_check_at === null) {
+            return true;
+        }
+
+        return $this->last_payment_check_at->diffInMinutes(now()) > 5;
     }
 }

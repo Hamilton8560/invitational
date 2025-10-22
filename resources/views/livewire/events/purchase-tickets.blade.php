@@ -41,38 +41,30 @@ $submit = function () {
         return;
     }
 
-    DB::transaction(function () {
-        // Find or create user
-        $user = User::firstOrCreate(
-            ['email' => $this->buyerEmail],
+    try {
+        $checkoutService = app(\App\Services\StripeCheckoutService::class);
+
+        $result = $checkoutService->createProductCheckout(
+            auth()->user(),
+            $this->product,
+            $this->quantity,
             [
-                'name' => $this->buyerName,
-                'password' => bcrypt(str()->random(32)),
+                // Additional data can be passed here for specific product types
+                // 'team_id' => $teamId,
+                // 'individual_player_id' => $playerId,
             ]
         );
 
-        // Create sale for payment tracking
-        $sale = Sale::create([
-            'event_id' => $this->event->id,
+        // Redirect to Stripe Checkout
+        return redirect($result['checkout_url']);
+    } catch (\Exception $e) {
+        $this->addError('general', 'Failed to create checkout session. Please try again.');
+        \Log::error('Checkout creation failed', [
+            'error' => $e->getMessage(),
             'product_id' => $this->product->id,
-            'user_id' => $user->id,
-            'quantity' => $this->quantity,
-            'unit_price' => $this->product->price,
-            'total_amount' => $this->totalPrice,
-            'status' => 'pending',
+            'user_id' => auth()->id(),
         ]);
-
-        // Increment product quantity by number of tickets sold
-        $this->product->increment('current_quantity', $this->quantity);
-
-        // Store sale ID in session for payment flow
-        session()->put('pending_sale_id', $sale->id);
-    });
-
-    session()->flash('message', 'Ticket purchase submitted successfully! Continue to payment.');
-
-    // TODO: Redirect to payment page when implemented
-    $this->redirect(route('events.show', $this->event->slug));
+    }
 };
 
 ?>

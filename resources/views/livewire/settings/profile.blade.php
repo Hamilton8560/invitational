@@ -4,7 +4,10 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
+use function Livewire\Volt\{layout};
 use Livewire\Volt\Component;
+
+layout('components.layouts.app.sidebar');
 
 new class extends Component {
     public string $name = '';
@@ -69,7 +72,7 @@ new class extends Component {
     }
 }; ?>
 
-<section class="w-full">
+<div>
     @include('partials.settings-heading')
 
     <x-settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
@@ -113,4 +116,4 @@ new class extends Component {
 
         <livewire:settings.delete-user-form />
     </x-settings.layout>
-</section>
+</div>

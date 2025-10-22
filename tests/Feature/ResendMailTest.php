@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Notification;
 test('resend is configured correctly in production environment', function () {
     // Check that Resend API key is configured
     expect(config('services.resend.key'))->not->toBeEmpty();
-    expect(config('mail.from.address'))->toBe('noreply@bryantinvitational.com');
+    expect(config('mail.from.address'))->toBe('info@bryantinvitational.com');
     expect(config('mail.from.name'))->toBe('The Invitational');
 
     // Check that resend mailer is defined

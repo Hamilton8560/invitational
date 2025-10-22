@@ -7,8 +7,11 @@ use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
+use function Livewire\Volt\{layout};
 use Livewire\Volt\Component;
 use Symfony\Component\HttpFoundation\Response;
+
+layout('components.layouts.app.sidebar');
 
 new class extends Component {
     #[Locked]
@@ -177,7 +180,7 @@ new class extends Component {
     }
 } ?>
 
-<section class="w-full">
+<div>
     @include('partials.settings-heading')
 
     <x-settings.layout
@@ -228,15 +231,15 @@ new class extends Component {
                     </flux:button>
                 </div>
             @endif
-        </div>
-    </x-settings.layout>
+    </div>
+</x-settings.layout>
 
-    <flux:modal
-        name="two-factor-setup-modal"
-        class="max-w-md md:min-w-md"
-        @close="closeModal"
-        wire:model="showModal"
-    >
+<flux:modal
+    name="two-factor-setup-modal"
+    class="max-w-md md:min-w-md"
+    @close="closeModal"
+    wire:model="showModal"
+>
         <div class="space-y-6">
             <div class="flex flex-col items-center space-y-4">
                 <div class="p-0.5 w-auto rounded-full border border-stone-100 dark:border-stone-600 bg-white dark:bg-stone-800 shadow-sm">
@@ -382,4 +385,4 @@ new class extends Component {
             @endif
         </div>
     </flux:modal>
-</section>
+</div>

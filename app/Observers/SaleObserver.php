@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Jobs\GenerateQRCode;
+use App\Jobs\SendSponsorshipConfirmationEmail;
 use App\Models\Sale;
 use App\Notifications\PurchaseConfirmation;
 
@@ -15,16 +16,13 @@ class SaleObserver
     {
         // When a sale is created with status 'completed', increment product quantity
         if ($sale->status === 'completed') {
-            $sale->product->increment('current_quantity', $sale->quantity);
+            // Only increment product quantity if this is a product sale (not sponsorship)
+            if ($sale->product_id && $sale->product) {
+                $sale->product->increment('current_quantity', $sale->quantity);
+            }
 
-            // Dispatch QR code generation and send confirmation email after QR is ready
-            GenerateQRCode::dispatch($sale)
-                ->chain([
-                    function () use ($sale) {
-                        $sale->refresh();
-                        $sale->user->notify(new PurchaseConfirmation($sale));
-                    },
-                ]);
+            // Send appropriate notification based on sale type
+            $this->sendCompletionNotification($sale);
         }
     }
 
@@ -35,22 +33,54 @@ class SaleObserver
     {
         // If status changed from pending to completed, increment product quantity
         if ($sale->isDirty('status') && $sale->status === 'completed' && $sale->getOriginal('status') === 'pending') {
-            $sale->product->increment('current_quantity', $sale->quantity);
+            // Only increment product quantity if this is a product sale (not sponsorship)
+            if ($sale->product_id && $sale->product) {
+                $sale->product->increment('current_quantity', $sale->quantity);
+            }
 
-            // Dispatch QR code generation and send confirmation email after QR is ready
-            GenerateQRCode::dispatch($sale)
-                ->chain([
-                    function () use ($sale) {
-                        $sale->refresh();
-                        $sale->user->notify(new PurchaseConfirmation($sale));
-                    },
-                ]);
+            // Send appropriate notification based on sale type
+            $this->sendCompletionNotification($sale);
         }
 
         // If status changed to refunded, decrement product quantity
         if ($sale->isDirty('status') && $sale->status === 'refunded') {
-            $sale->product->decrement('current_quantity', $sale->quantity);
+            // Only decrement product quantity if this is a product sale (not sponsorship)
+            if ($sale->product_id && $sale->product) {
+                $sale->product->decrement('current_quantity', $sale->quantity);
+            }
         }
+    }
+
+    /**
+     * Send the appropriate completion notification based on sale type
+     */
+    protected function sendCompletionNotification(Sale $sale): void
+    {
+        // For sponsorship sales
+        if ($sale->sponsorship_id) {
+            // Update sponsorship status to active
+            $sale->sponsorship->update([
+                'status' => 'active',
+                'approved_at' => now(),
+            ]);
+
+            // Check if this is a newly created user (no previous sales)
+            $isNewUser = $sale->user->sales()->where('id', '!=', $sale->id)->doesntExist();
+
+            // Chain: Generate QR code → Send confirmation email
+            GenerateQRCode::dispatch($sale)
+                ->chain([
+                    new SendSponsorshipConfirmationEmail($sale, $isNewUser),
+                ]);
+
+            return;
+        }
+
+        // For product sales, generate QR code and send notification directly
+        GenerateQRCode::dispatch($sale);
+
+        // Send product purchase confirmation
+        $sale->user->notify(new PurchaseConfirmation($sale));
     }
 
     /**

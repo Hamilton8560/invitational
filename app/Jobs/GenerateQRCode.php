@@ -37,10 +37,16 @@ class GenerateQRCode implements ShouldQueue
             'individual_player_id' => $this->sale->individual_player_id,
             'booth_id' => $this->sale->booth_id,
             'banner_id' => $this->sale->banner_id,
+            'sponsorship_id' => $this->sale->sponsorship_id,
         ]);
 
-        // Generate check-in URL
-        $url = route('checkin.scan', ['token' => $payload]);
+        // For sponsorships, generate dashboard URL instead of check-in URL
+        if ($this->sale->sponsorship_id) {
+            $url = route('dashboard').'?qr_token='.$payload;
+        } else {
+            // Generate check-in URL for event tickets
+            $url = route('checkin.scan', ['token' => $payload]);
+        }
 
         // Create QR code renderer
         $renderer = new ImageRenderer(
@@ -83,6 +89,10 @@ class GenerateQRCode implements ShouldQueue
 
         if ($this->sale->banner_id) {
             return 'vendor';
+        }
+
+        if ($this->sale->sponsorship_id) {
+            return 'sponsor';
         }
 
         return 'spectator';
