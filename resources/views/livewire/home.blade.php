@@ -1,7 +1,10 @@
 <?php
 
 use App\Models\Event;
-use function Livewire\Volt\{computed, layout, state};
+
+use function Livewire\Volt\computed;
+use function Livewire\Volt\layout;
+use function Livewire\Volt\state;
 
 layout('components.layouts.public');
 
@@ -64,16 +67,16 @@ $signUp = function () {
                     <!-- Trust Indicators -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 pt-12 mt-12 border-t border-stone-700">
                         <div>
-                            <div class="text-3xl md:text-4xl font-bold text-amber-400 mb-1">5,000+</div>
-                            <div class="text-sm text-stone-300">Athletes</div>
+                            <div class="text-3xl md:text-4xl font-bold text-amber-400 mb-1">$40K</div>
+                            <div class="text-sm text-stone-300">Cash Prizes</div>
                         </div>
                         <div>
                             <div class="text-3xl md:text-4xl font-bold text-amber-400 mb-1">12+</div>
                             <div class="text-sm text-stone-300">Sports Offered</div>
                         </div>
                         <div>
-                            <div class="text-3xl md:text-4xl font-bold text-amber-400 mb-1">All</div>
-                            <div class="text-sm text-stone-300">Skill Levels</div>
+                            <div class="text-3xl md:text-4xl font-bold text-amber-400 mb-1">5,000+</div>
+                            <div class="text-sm text-stone-300">Athletes</div>
                         </div>
                         <div>
                             <div class="text-3xl md:text-4xl font-bold text-amber-400 mb-1">100%</div>
@@ -95,6 +98,136 @@ $signUp = function () {
             </div>
         </div>
 
+        <!-- Cash Prize Feature -->
+        <div class="bg-gradient-to-br from-amber-500/10 via-amber-600/5 to-orange-500/10 border-y border-amber-500/30 py-16 md:py-20">
+            <div class="container mx-auto px-4 max-w-5xl">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center size-16 bg-amber-500/20 rounded-full mb-4">
+                        <flux:icon.currency-dollar class="size-10 text-amber-400" />
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-extrabold mb-4 text-white">
+                        Up to <span class="text-amber-400">$40,000</span> in Cash Prizes
+                    </h2>
+                    <p class="text-lg md:text-xl text-stone-200 max-w-2xl mx-auto">
+                        Winners take home 30% of the pot money at every event. The more teams that register, the bigger the prize pool grows.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
+                    <div class="bg-stone-800/40 backdrop-blur-sm rounded-xl p-6 border border-amber-500/20">
+                        <div class="text-3xl md:text-4xl font-bold text-amber-400 mb-2">30%</div>
+                        <div class="text-sm text-stone-300">Winner's share of every pot</div>
+                    </div>
+                    <div class="bg-stone-800/40 backdrop-blur-sm rounded-xl p-6 border border-amber-500/20">
+                        <div class="text-3xl md:text-4xl font-bold text-amber-400 mb-2">12+</div>
+                        <div class="text-sm text-stone-300">Sports with cash prizes</div>
+                    </div>
+                    <div class="bg-stone-800/40 backdrop-blur-sm rounded-xl p-6 border border-amber-500/20">
+                        <div class="text-3xl md:text-4xl font-bold text-amber-400 mb-2">Huge</div>
+                        <div class="text-sm text-stone-300">Potential payouts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Events Preview -->
+        <div class="container mx-auto px-4 py-16 md:py-20 max-w-6xl">
+            <div class="text-center mb-12">
+                <flux:icon.calendar class="size-12 mx-auto text-amber-400 mb-4" />
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">Upcoming Events</h2>
+                <p class="text-lg text-stone-300">
+                    Register now and compete for cash prizes - spots are filling up fast!
+                </p>
+            </div>
+
+            <!-- Events List -->
+            @if ($this->events->isEmpty())
+                <div class="text-center py-16">
+                    <flux:icon.calendar class="size-16 mx-auto text-stone-500 mb-4" />
+                    <h3 class="text-xl font-semibold mb-2 text-white">No upcoming events</h3>
+                    <p class="text-stone-300">
+                        Check back soon for new tournaments!
+                    </p>
+                </div>
+            @else
+                <div class="grid gap-6 max-w-5xl mx-auto">
+                    @foreach ($this->events->take(3) as $event)
+                        <div class="group bg-stone-800/50 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden border border-stone-700 hover:border-amber-400/50">
+                            <div class="p-6 md:p-8">
+                                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-6">
+                                    <div class="flex-grow">
+                                        <a href="{{ route('events.show', $event->slug) }}"
+                                           wire:navigate
+                                           class="block">
+                                            <h3 class="text-2xl md:text-3xl font-bold text-white group-hover:text-amber-400 transition-colors mb-3">
+                                                {{ $event->name }}
+                                            </h3>
+                                        </a>
+                                        <div class="flex flex-wrap gap-4 text-stone-300 mb-4">
+                                            <div class="flex items-center gap-2">
+                                                <flux:icon.calendar class="size-5" />
+                                                <span class="text-sm font-medium">{{ $event->start_date->format('M j') }} - {{ $event->end_date->format('M j, Y') }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <flux:icon.map-pin class="size-5" />
+                                                <span class="text-sm">{{ $event->venue->name }}</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Event Stats -->
+                                        <div class="flex flex-wrap gap-4 mb-4">
+                                            <div class="flex items-center gap-2">
+                                                <div class="text-2xl font-bold text-amber-400">
+                                                    {{ $event->products()->where('type', 'team_registration')->distinct('sport_name')->count('sport_name') }}
+                                                </div>
+                                                <div class="text-sm text-stone-400">Sports Available</div>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <div class="text-2xl font-bold text-amber-400">
+                                                    {{ $event->products()->where('type', 'team_registration')->count() }}
+                                                </div>
+                                                <div class="text-sm text-stone-400">Divisions</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Sports Preview -->
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach ($event->products()->where('type', 'team_registration')->distinct('sport_name')->pluck('sport_name') as $sport)
+                                                <span class="px-3 py-1 text-xs font-medium rounded-full bg-stone-700 text-stone-200">{{ $sport }}</span>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="flex md:flex-col gap-3 md:min-w-[140px]">
+                                        <a href="{{ route('events.schedule', $event->slug) }}"
+                                           wire:navigate
+                                           class="flex-1 md:flex-none inline-flex justify-center items-center px-5 py-3 font-medium leading-6 text-center bg-stone-700 rounded-lg border border-stone-600 transition duration-150 ease-in-out text-white hover:bg-stone-600 focus:outline-none">
+                                            <flux:icon.calendar class="size-4 mr-2" />
+                                            Schedule
+                                        </a>
+                                        <a href="{{ route('events.show', $event->slug) }}"
+                                           wire:navigate
+                                           class="flex-1 md:flex-none inline-flex justify-center items-center px-5 py-3 font-bold leading-6 text-center bg-amber-500 rounded-lg border border-transparent transition duration-150 ease-in-out text-stone-900 hover:bg-amber-400 focus:outline-none active:bg-amber-600">
+                                            Register
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                @if ($this->events->count() > 3)
+                    <div class="text-center mt-8">
+                        <a href="{{ route('events.index') }}" class="inline-flex justify-center items-center px-6 py-3 font-medium leading-6 text-center bg-stone-800 rounded-full border border-stone-700 transition duration-150 ease-in-out text-white hover:bg-stone-700 focus:outline-none focus:border-amber-400">
+                            View All Events
+                        </a>
+                    </div>
+                @endif
+            @endif
+        </div>
+
         <!-- Value Propositions -->
         <div class="container mx-auto px-4 py-16 md:py-20 max-w-6xl">
             <div class="grid md:grid-cols-3 gap-8 md:gap-12">
@@ -114,7 +247,7 @@ $signUp = function () {
                     </div>
                     <h3 class="text-xl font-bold mb-3 text-white">Play Hard, Win Big</h3>
                     <p class="text-stone-300">
-                        Cash prizes for champions, competitive divisions for serious players, and fun categories for everyone else. Come to compete or just have a great time.
+                        Winners earn 30% of the pot money at every event. With competitive divisions for serious players and fun categories for everyone else, you could take home thousands in cash prizes.
                     </p>
                 </div>
 
@@ -248,83 +381,6 @@ $signUp = function () {
                     Join our growing community of sponsors making a difference
                 </p>
             </div>
-        </div>
-
-        <!-- Upcoming Events Preview -->
-        <div class="container mx-auto px-4 py-16 md:py-20 max-w-6xl">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">Upcoming Events</h2>
-                <p class="text-lg text-stone-300">
-                    Find your next sports adventure - spots are filling up fast!
-                </p>
-            </div>
-
-            <!-- Events List -->
-            @if ($this->events->isEmpty())
-                <div class="text-center py-16">
-                    <flux:icon.calendar class="size-16 mx-auto text-stone-500 mb-4" />
-                    <h3 class="text-xl font-semibold mb-2 text-white">No upcoming events</h3>
-                    <p class="text-stone-300">
-                        Check back soon for new tournaments!
-                    </p>
-                </div>
-            @else
-                <div class="grid gap-6 max-w-5xl mx-auto">
-                    @foreach ($this->events->take(3) as $event)
-                        <a href="{{ route('events.show', $event->slug) }}"
-                           wire:navigate
-                           class="group block bg-stone-800/50 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden border border-stone-700 hover:border-amber-400/50">
-
-                            <div class="p-6 md:p-8">
-                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-                                    <div>
-                                        <h3 class="text-2xl md:text-3xl font-bold text-white group-hover:text-amber-400 transition-colors mb-2">
-                                            {{ $event->name }}
-                                        </h3>
-                                        <div class="flex flex-wrap gap-4 text-stone-300">
-                                            <div class="flex items-center gap-2">
-                                                <flux:icon.calendar class="size-4" />
-                                                <span class="text-sm">{{ $event->start_date->format('M j') }} - {{ $event->end_date->format('M j, Y') }}</span>
-                                            </div>
-                                            <div class="flex items-center gap-2">
-                                                <flux:icon.map-pin class="size-4" />
-                                                <span class="text-sm">{{ $event->venue->name }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center gap-3">
-                                        <div class="text-right">
-                                            <div class="text-sm text-stone-300">
-                                                {{ $event->products()->where('type', 'team_registration')->distinct('sport_name')->count('sport_name') }} Sports
-                                            </div>
-                                            <div class="text-sm text-stone-300">
-                                                {{ $event->products()->where('type', 'team_registration')->count() }} Divisions
-                                            </div>
-                                        </div>
-                                        <flux:icon.chevron-right class="size-6 text-stone-400 group-hover:text-amber-400 transition-colors" />
-                                    </div>
-                                </div>
-
-                                <!-- Sports Preview -->
-                                <div class="flex flex-wrap gap-2">
-                                    @foreach ($event->products()->where('type', 'team_registration')->distinct('sport_name')->pluck('sport_name') as $sport)
-                                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-stone-700 text-stone-200">{{ $sport }}</span>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-
-                @if ($this->events->count() > 3)
-                    <div class="text-center mt-8">
-                        <a href="{{ route('events.index') }}" class="inline-flex justify-center items-center px-6 py-3 font-medium leading-6 text-center bg-stone-800 rounded-full border border-stone-700 transition duration-150 ease-in-out text-white hover:bg-stone-700 focus:outline-none focus:border-amber-400">
-                            View All Events
-                        </a>
-                    </div>
-                @endif
-            @endif
         </div>
 
         <!-- Final CTA Section -->

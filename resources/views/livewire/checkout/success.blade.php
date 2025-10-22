@@ -2,28 +2,41 @@
 
 use App\Models\Sale;
 use App\Services\StripeCheckoutService;
+use App\Services\PayPalCheckoutService;
 use function Livewire\Volt\{state, mount, layout};
 
 layout('components.layouts.public');
 
-state(['sale' => null, 'verifying' => true, 'paymentConfirmed' => false, 'pollAttempts' => 0, 'maxPollAttempts' => 10]);
+state(['sale' => null, 'verifying' => true, 'paymentConfirmed' => false, 'pollAttempts' => 0, 'maxPollAttempts' => 10, 'provider' => null]);
 
-mount(function (StripeCheckoutService $checkoutService) {
+mount(function () {
     $this->maxPollAttempts = config('stripe.payment_poll_max_attempts', 10);
+    $this->provider = request()->get('provider', 'stripe');
 
-    $sessionId = request()->get('session_id');
+    // Handle Stripe checkout
+    if ($this->provider === 'stripe') {
+        $sessionId = request()->get('session_id');
 
-    if (!$sessionId) {
-        // Redirect to home for guests, dashboard for authenticated users
-        $this->redirect(auth()->check() ? route('dashboard') : route('home'));
-        return;
+        if (!$sessionId) {
+            $this->redirect(auth()->check() ? route('dashboard') : route('home'));
+            return;
+        }
+
+        $this->sale = Sale::where('stripe_checkout_session_id', $sessionId)->first();
+    }
+    // Handle PayPal checkout
+    elseif ($this->provider === 'paypal') {
+        $token = request()->get('token'); // PayPal order ID
+
+        if (!$token) {
+            $this->redirect(auth()->check() ? route('dashboard') : route('home'));
+            return;
+        }
+
+        $this->sale = Sale::where('paypal_order_id', $token)->first();
     }
 
-    // Find sale by session ID
-    $this->sale = Sale::where('stripe_checkout_session_id', $sessionId)->first();
-
     if (!$this->sale) {
-        // Redirect to home for guests, dashboard for authenticated users
         $this->redirect(auth()->check() ? route('dashboard') : route('home'));
         return;
     }
@@ -35,8 +48,13 @@ mount(function (StripeCheckoutService $checkoutService) {
 $verifyPayment = function () {
     $this->pollAttempts++;
 
-    $checkoutService = app(\App\Services\StripeCheckoutService::class);
-    $this->paymentConfirmed = $checkoutService->verifyPayment($this->sale);
+    if ($this->provider === 'stripe') {
+        $checkoutService = app(\App\Services\StripeCheckoutService::class);
+        $this->paymentConfirmed = $checkoutService->verifyPayment($this->sale);
+    } elseif ($this->provider === 'paypal') {
+        $checkoutService = app(\App\Services\PayPalCheckoutService::class);
+        $this->paymentConfirmed = $checkoutService->verifyPayment($this->sale);
+    }
 
     if ($this->paymentConfirmed) {
         $this->verifying = false;
@@ -57,7 +75,7 @@ $verifyPayment = function () {
                     Verifying Payment...
                 </h2>
                 <p class="text-zinc-600 dark:text-zinc-400 mb-4">
-                    Please wait while we confirm your payment with Stripe
+                    Please wait while we confirm your payment with {{ ucfirst($provider) }}
                 </p>
                 <p class="text-sm text-zinc-500">
                     Attempt {{ $pollAttempts }} of {{ $maxPollAttempts }}

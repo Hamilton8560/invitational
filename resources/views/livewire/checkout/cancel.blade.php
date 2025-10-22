@@ -14,7 +14,11 @@ mount(function (Sale $sale) {
     if ($sale->status === 'pending') {
         \DB::transaction(function () use ($sale) {
             $sale->update(['status' => 'failed']);
-            $sale->product->decrement('current_quantity', $sale->quantity);
+
+            // Only decrement product quantity if it's a product purchase (not sponsorship)
+            if ($sale->product_id && $sale->product) {
+                $sale->product->decrement('current_quantity', $sale->quantity);
+            }
         });
     }
 });

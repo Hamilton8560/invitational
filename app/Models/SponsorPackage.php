@@ -31,6 +31,9 @@ class SponsorPackage extends Model
         'stripe_price_id',
         'stripe_environment',
         'last_synced_at',
+        'paypal_product_id',
+        'paypal_environment',
+        'paypal_last_synced_at',
     ];
 
     /**
@@ -50,6 +53,7 @@ class SponsorPackage extends Model
             'is_template' => 'boolean',
             'display_order' => 'integer',
             'last_synced_at' => 'datetime',
+            'paypal_last_synced_at' => 'datetime',
         ];
     }
 
@@ -123,5 +127,17 @@ class SponsorPackage extends Model
             || $this->stripe_price_id === null
             || $this->stripe_environment !== $currentEnv
             || ($this->last_synced_at && $this->updated_at > $this->last_synced_at);
+    }
+
+    /**
+     * Check if package needs syncing to PayPal
+     */
+    public function needsPayPalSync(): bool
+    {
+        $currentEnv = config('paypal.environment');
+
+        return $this->paypal_product_id === null
+            || $this->paypal_environment !== $currentEnv
+            || ($this->paypal_last_synced_at && $this->updated_at > $this->paypal_last_synced_at);
     }
 }

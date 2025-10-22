@@ -37,6 +37,9 @@ class Sale extends Model
         'stripe_checkout_session_id',
         'stripe_payment_intent_id',
         'stripe_customer_id',
+        'paypal_order_id',
+        'paypal_payer_id',
+        'paypal_capture_id',
         'last_payment_check_at',
         'qr_code_path',
     ];
@@ -122,7 +125,7 @@ class Sale extends Model
     public function needsPaymentVerification(): bool
     {
         return $this->status === 'pending'
-            && $this->stripe_checkout_session_id !== null;
+            && ($this->stripe_checkout_session_id !== null || $this->paypal_order_id !== null);
     }
 
     /**
