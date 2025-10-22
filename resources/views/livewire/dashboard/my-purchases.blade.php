@@ -40,6 +40,15 @@ $individualRegistrations = computed(function () {
         ->get();
 });
 
+$sponsorships = computed(function () {
+    return auth()->user()->sales()
+        ->whereNotNull('sponsorship_id')
+        ->with(['sponsorship.sponsorPackage', 'sponsorship.sports', 'event'])
+        ->where('status', 'completed')
+        ->orderBy('created_at', 'desc')
+        ->get();
+});
+
 ?>
 
 <div class="max-w-7xl mx-auto space-y-8 p-6">
@@ -305,8 +314,59 @@ $individualRegistrations = computed(function () {
             </div>
         @endif
 
+        <!-- Sponsorships -->
+        @if ($this->sponsorships->isNotEmpty())
+            <div class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <flux:icon.star class="size-5 text-zinc-600 dark:text-zinc-400" />
+                    <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">Sponsorships</h2>
+                </div>
+                <div class="grid gap-4">
+                    @foreach ($this->sponsorships as $sale)
+                        @php
+                            $sponsorship = $sale->sponsorship;
+                            $package = $sponsorship->sponsorPackage;
+                        @endphp
+                        <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-6">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">{{ $package->name }}</h3>
+                                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $sale->event->name }}</p>
+                                </div>
+                                <flux:badge :color="$sale->status === 'completed' ? 'green' : 'amber'">
+                                    {{ ucfirst($sale->status) }}
+                                </flux:badge>
+                            </div>
+                            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm mb-4">
+                                <div>
+                                    <span class="text-zinc-600 dark:text-zinc-400">Company:</span>
+                                    <span class="text-zinc-900 dark:text-white font-medium ml-1">{{ $sponsorship->company_name }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-zinc-600 dark:text-zinc-400">Sports Sponsored:</span>
+                                    <span class="text-zinc-900 dark:text-white font-medium ml-1">{{ $sponsorship->sports->count() }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-zinc-600 dark:text-zinc-400">Amount:</span>
+                                    <span class="text-zinc-900 dark:text-white font-medium ml-1">${{ number_format($sale->total_amount, 2) }}</span>
+                                </div>
+                            </div>
+                            <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4">
+                                <div class="text-sm text-zinc-600 dark:text-zinc-400 mb-2">Sports:</div>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach ($sponsorship->sports as $sport)
+                                        <flux:badge>{{ $sport->name }}</flux:badge>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         <!-- Empty State -->
-        @if ($this->teams->isEmpty() && $this->spectatorTickets->isEmpty() && $this->booths->isEmpty() && $this->banners->isEmpty() && $this->individualRegistrations->isEmpty())
+        @if ($this->teams->isEmpty() && $this->spectatorTickets->isEmpty() && $this->booths->isEmpty() && $this->banners->isEmpty() && $this->individualRegistrations->isEmpty() && $this->sponsorships->isEmpty())
             <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-12 text-center">
                 <flux:icon.shopping-bag class="size-16 mx-auto text-zinc-400 mb-4" />
                 <h3 class="text-xl font-semibold text-zinc-900 dark:text-white mb-2">

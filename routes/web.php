@@ -22,6 +22,10 @@ Volt::route('/sponsors/{package}', 'sponsors.purchase-package')->name('sponsors.
 // Player Invitation Route
 Volt::route('/invitations/{token}/accept', 'invitations.accept')->name('invitations.accept');
 
+// Stripe Checkout Routes (accessible to guests for sponsorship purchases)
+Volt::route('/checkout/success', 'checkout.success')->name('checkout.success');
+Volt::route('/checkout/cancel/{sale}', 'checkout.cancel')->name('checkout.cancel');
+
 // Check-in Routes
 Route::post('/checkin/scan', [App\Http\Controllers\CheckinController::class, 'scan'])
     ->middleware(['auth'])

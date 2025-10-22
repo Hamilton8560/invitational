@@ -23,8 +23,8 @@ layout('components.layouts.public');
                             <flux:icon.envelope class="size-6 text-zinc-600 dark:text-zinc-400 mt-1 flex-shrink-0" />
                             <div>
                                 <div class="font-semibold text-zinc-900 dark:text-white mb-1">Email Support</div>
-                                <a href="mailto:support@theinvitational.com" class="text-blue-600 dark:text-blue-400 hover:underline">
-                                    support@theinvitational.com
+                                <a href="mailto:support@bryantinvitational.com" class="text-blue-600 dark:text-blue-400 hover:underline">
+                                    support@bryantinvitational.com
                                 </a>
                                 <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
                                     Response time: Within 24 hours
@@ -53,7 +53,7 @@ layout('components.layouts.public');
                 </p>
                 <ul>
                     <li>Check the event details page for comprehensive information</li>
-                    <li>Email us at <a href="mailto:events@theinvitational.com" class="text-blue-600 dark:text-blue-400 hover:underline">events@theinvitational.com</a></li>
+                    <li>Email us at <a href="mailto:events@bryantinvitational.com" class="text-blue-600 dark:text-blue-400 hover:underline">events@bryantinvitational.com</a></li>
                     <li>Include your event name and registration details in your inquiry</li>
                 </ul>
 
@@ -63,13 +63,13 @@ layout('components.layouts.public');
                 </p>
                 <ul>
                     <li>Visit your <a href="{{ route('dashboard') }}" wire:navigate class="text-blue-600 dark:text-blue-400 hover:underline">Dashboard</a> to manage teams</li>
-                    <li>Email <a href="mailto:registration@theinvitational.com" class="text-blue-600 dark:text-blue-400 hover:underline">registration@theinvitational.com</a> for assistance</li>
+                    <li>Email <a href="mailto:registration@bryantinvitational.com" class="text-blue-600 dark:text-blue-400 hover:underline">registration@bryantinvitational.com</a> for assistance</li>
                     <li>Include your team name, event name, and order number</li>
                 </ul>
 
                 <flux:heading size="lg" class="mt-8 mb-4">Technical Support</flux:heading>
                 <p>
-                    Experiencing technical issues with the platform? Email <a href="mailto:tech@theinvitational.com" class="text-blue-600 dark:text-blue-400 hover:underline">tech@theinvitational.com</a> with screenshots and details about your browser and device.
+                    Experiencing technical issues with the platform? Email <a href="mailto:tech@bryantinvitational.com" class="text-blue-600 dark:text-blue-400 hover:underline">tech@bryantinvitational.com</a> with screenshots and details about your browser and device.
                 </p>
 
                 <flux:heading size="lg" class="mt-8 mb-4">Frequently Asked Questions</flux:heading>

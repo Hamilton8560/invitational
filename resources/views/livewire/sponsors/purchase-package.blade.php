@@ -70,7 +70,7 @@ rules([
 $submit = function () {
     $this->validate();
 
-    DB::transaction(function () {
+    try {
         // Find or create user
         $user = User::firstOrCreate(
             ['email' => $this->contactEmail],
@@ -97,30 +97,34 @@ $submit = function () {
         // Attach selected sports
         $sponsorship->sports()->attach($this->selectedSportIds);
 
-        // Create sale for payment tracking
+        // Create Stripe Checkout session
+        $checkoutService = app(\App\Services\StripeCheckoutService::class);
         $sportCount = count($this->selectedSportIds);
-        $calculatedTotal = $this->package->price * $sportCount;
 
-        $sale = Sale::create([
-            'event_id' => $this->selectedEventId,
-            'product_id' => null, // Sponsorships don't use products
-            'sponsorship_id' => $sponsorship->id,
-            'user_id' => $user->id,
-            'quantity' => $sportCount,
-            'unit_price' => $this->package->price,
-            'total_amount' => $calculatedTotal,
-            'status' => 'pending',
+        // Sync package to Stripe if needed
+        if ($this->package->needsStripeSync()) {
+            $syncService = app(\App\Services\StripeProductSync::class);
+            $syncService->syncSponsorPackage($this->package);
+        }
+
+        $result = $checkoutService->createPackageCheckout(
+            $user,
+            $this->package,
+            $sportCount,
+            $this->selectedEventId,
+            $sponsorship->id
+        );
+
+        // Redirect to Stripe Checkout
+        return redirect($result['checkout_url']);
+    } catch (\Exception $e) {
+        $this->addError('general', 'Failed to create checkout session. Please try again.');
+        \Log::error('Sponsorship checkout creation failed', [
+            'error' => $e->getMessage(),
+            'package_id' => $this->package->id,
+            'email' => $this->contactEmail,
         ]);
-
-        // Store sponsorship ID in session for payment flow
-        session()->put('pending_sponsorship_id', $sponsorship->id);
-        session()->put('pending_sale_id', $sale->id);
-    });
-
-    session()->flash('message', 'Sponsorship application submitted successfully! Continue to payment.');
-
-    // TODO: Redirect to payment page when implemented
-    $this->redirect(route('sponsors.browse'));
+    }
 };
 
 ?>
@@ -159,6 +163,12 @@ $submit = function () {
     <!-- Form Content -->
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <form wire:submit="submit">
+            @error('general')
+                <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                    <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                </div>
+            @enderror
+
             <div class="grid md:grid-cols-3 gap-8">
                 <!-- Form Column -->
                 <div class="md:col-span-2 space-y-6">
@@ -277,8 +287,22 @@ $submit = function () {
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="w-full px-6 py-3 font-bold rounded-lg transition-colors @if($package->tier === 'gold') text-white bg-amber-500 hover:bg-amber-600 @elseif($package->tier === 'silver') text-white bg-zinc-700 hover:bg-zinc-800 @else text-white bg-orange-900 hover:bg-orange-800 @endif">
-                        Submit Sponsorship Application
+                    <button
+                        type="submit"
+                        wire:loading.attr="disabled"
+                        wire:target="submit"
+                        class="w-full px-6 py-3 font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed @if($package->tier === 'gold') text-white bg-amber-500 hover:bg-amber-600 @elseif($package->tier === 'silver') text-white bg-zinc-700 hover:bg-zinc-800 @else text-white bg-orange-900 hover:bg-orange-800 @endif"
+                    >
+                        <span wire:loading.remove wire:target="submit">
+                            Submit Sponsorship Application
+                        </span>
+                        <span wire:loading wire:target="submit" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                        </span>
                     </button>
                 </div>
 

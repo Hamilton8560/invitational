@@ -32,6 +32,10 @@ class Product extends Model
         'current_quantity',
         'division_id',
         'display_order',
+        'stripe_product_id',
+        'stripe_price_id',
+        'stripe_environment',
+        'last_synced_at',
     ];
 
     /**
@@ -49,6 +53,7 @@ class Product extends Model
             'cash_prize' => 'decimal:2',
             'division_id' => 'integer',
             'display_order' => 'integer',
+            'last_synced_at' => 'datetime',
         ];
     }
 
@@ -154,5 +159,47 @@ class Product extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('display_order');
+    }
+
+    /**
+     * Check if product needs syncing to Stripe
+     */
+    public function needsStripeSync(): bool
+    {
+        $currentEnv = config('stripe.environment');
+
+        return $this->stripe_product_id === null
+            || $this->stripe_price_id === null
+            || $this->stripe_environment !== $currentEnv
+            || ($this->last_synced_at && $this->updated_at > $this->last_synced_at);
+    }
+
+    /**
+     * Get Stripe product name
+     */
+    public function getStripeProductName(): string
+    {
+        $eventName = $this->event ? $this->event->name.' - ' : '';
+
+        return $eventName.$this->name;
+    }
+
+    /**
+     * Get Stripe product description
+     */
+    public function getStripeProductDescription(): string
+    {
+        $desc = $this->description ?? $this->name;
+
+        if ($this->event) {
+            $desc .= "\n\nEvent: {$this->event->name}";
+            $desc .= "\nDates: {$this->event->start_date->format('M j')} - {$this->event->end_date->format('M j, Y')}";
+        }
+
+        if ($this->division) {
+            $desc .= "\nDivision: {$this->division->name}";
+        }
+
+        return $desc;
     }
 }

@@ -27,6 +27,10 @@ class SponsorPackage extends Model
         'is_active',
         'is_template',
         'display_order',
+        'stripe_product_id',
+        'stripe_price_id',
+        'stripe_environment',
+        'last_synced_at',
     ];
 
     /**
@@ -45,6 +49,7 @@ class SponsorPackage extends Model
             'is_active' => 'boolean',
             'is_template' => 'boolean',
             'display_order' => 'integer',
+            'last_synced_at' => 'datetime',
         ];
     }
 
@@ -105,5 +110,18 @@ class SponsorPackage extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('display_order');
+    }
+
+    /**
+     * Check if package needs syncing to Stripe
+     */
+    public function needsStripeSync(): bool
+    {
+        $currentEnv = config('stripe.environment');
+
+        return $this->stripe_product_id === null
+            || $this->stripe_price_id === null
+            || $this->stripe_environment !== $currentEnv
+            || ($this->last_synced_at && $this->updated_at > $this->last_synced_at);
     }
 }

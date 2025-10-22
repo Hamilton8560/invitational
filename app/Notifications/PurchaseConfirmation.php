@@ -35,6 +35,11 @@ class PurchaseConfirmation extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        // Safety check - this notification should only be used for product sales, not sponsorships
+        if ($this->sale->sponsorship_id) {
+            throw new \Exception('PurchaseConfirmation should not be used for sponsorships. Use SponsorshipPurchaseConfirmation instead.');
+        }
+
         $message = (new MailMessage)
             ->subject('Registration Confirmation - '.$this->sale->event->name)
             ->greeting('Hello '.$this->sale->user->name.',')
@@ -46,7 +51,7 @@ class PurchaseConfirmation extends Notification implements ShouldQueue
             ->line('Event: '.$this->sale->event->name)
             ->line('Product: '.$this->sale->product->name)
             ->line('Quantity: '.$this->sale->quantity)
-            ->line('Total: $'.number_format($this->sale->amount, 2));
+            ->line('Total: $'.number_format($this->sale->total_amount, 2));
 
         // Add team/player details if applicable
         if ($this->sale->team) {
